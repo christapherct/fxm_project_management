@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="task_management_calendar_event_view" model="ir.ui.view">
+        <field name="name">task_management_task_management_calendar_event_view</field>
+        <field name="model">task.event</field>
+        <field name="arch" type="xml">
+            <calendar string="Time Off" date_start="deadline" mode="month" quick_add="False" color="name">
+                <field name="name" filters="1" invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="task_event_form" model="ir.ui.view">
+        <field name="name">task_event_form</field>
+        <field name="model">task.event</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="deadline"/>
+<!--                            <field name="assigned_date"/>-->
+                        </group>
+                        <group>
+                            <field name="client_management_ids" widget="many2many_tags" />
+<!--                            <field name="client_management" />-->
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="task_event_management_details" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.event</field>
+        <field name="view_mode">calendar,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Events found. Let's create one!</p>
+        </field>
+    </record>
+
+    <menuitem id="add_task_manage_event_menu"
+              name="Events"
+              parent="task_management_submenu"
+              sequence="2"
+              action="task_event_management_details"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+
+</odoo>

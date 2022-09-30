@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_daily_target_tree" model="ir.ui.view">
+        <field name="name">Daily Target</field>
+        <field name="model">target.management</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="achieved_total &lt; target_amount" decoration-success="achieved_total &gt;= target_amount" string="Daily Target"  >
+                <field name="name"/>
+                <field name="client_management_id"/>
+                <field name="date"/>
+                <field name="to_date"/>
+                <field name="target_amount"/>
+                <field name="achieved_total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_daily_target_form" model="ir.ui.view">
+        <field name="name">Daily Target</field>
+        <field name="model">target.management</field>
+        <field name="arch" type="xml">
+            <form string="Daily Target">
+                <sheet>
+                    <div class="oe_title oe_left">
+                        <h2>
+                            <field name="name" class="oe_inline"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="target_amount" force_save="1"/>
+                            <field name="to_date"/>
+                            <field name="notes"/>
+                        </group>
+                        <group>
+                            <field name="client_management_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Projects">
+                            <field name="account_management_ids" readonly="1" force_save="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="invoice_today"/>
+                                    <field name="amount_total"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group name="note_group" col="6" class="mt-2 mt-md-0">
+                        <group colspan="4">
+                            <field name="internal_note" nolabel="1" placeholder="Terms and conditions..."/>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total" >
+                            <field name="target_amount" readonly="1" string="Total Target" widget='monetary' options="{'currency_field': 'currency_id'}" force_save="1"/>
+                            <field name="achieved_total" readonly="1" string="Total Achieved" widget='monetary' options="{'currency_field': 'currency_id'}" force_save="1"/>
+                        </group>
+                        <div class="oe_clear"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_daily_target" model="ir.actions.act_window">
+        <field name="name">Daily Target</field>
+        <field name="res_model">target.management</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="analysis_management_sub_undermenu"
+              name="Analysis"
+              parent="account_management_submenu"
+              sequence="02"
+              action="action_daily_target"
+              groups="fxm_project_management.group_server_accounts"
+              />
+
+</odoo>

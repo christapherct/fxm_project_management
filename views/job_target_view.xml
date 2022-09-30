@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="job_analysis_tree_view" model="ir.ui.view">
+        <field name="name">Job Analysis Tree</field>
+        <field name="model">job.target</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="target &gt; achieved_total" decoration-success="target &lt;= achieved_total">
+                <field name="today_date"/>
+                <field name="name"/>
+                <field name="target"/>
+                <field name="achieved_total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="job_analysis_search_view" model="ir.ui.view">
+        <field name="name">job.target.search.view</field>
+        <field name="model">job.target</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="group_customer_id" string="Name" icon="terp-partner"
+                        context="{'group_by':'name'}"/>
+                <filter name="group_customer_id" string="Created Date" icon="terp-partner"
+                        context="{'group_by':'today_date'}"/>
+                <filter name="group_customer_id" string="Time Period" icon="terp-partner"
+                        context="{'group_by':'date_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="job_analysis_form_view" model="ir.ui.view">
+        <field name="name">Job Analysis</field>
+        <field name="model">job.target</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <h3><field name="name"/></h3>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="target"/>
+                            <field name="date_type"/>
+                        </group>
+                        <group>
+                            <field name="today_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Jobs">
+                            <field name="job_management_ids" readonly="1" force_save="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="job_name"/>
+                                    <field name="project_management_id"/>
+                                    <field name="amount_untaxed"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group name="note_group" col="6" class="mt-2 mt-md-0">
+                        <group colspan="4">
+                            <field name="notes" nolabel="1" placeholder="Terms and conditions..."/>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total" >
+                            <field name="target" readonly="1" string="Total Target" widget='monetary' options="{'currency_field': 'currency_id'}" force_save="1"/>
+                            <field name="achieved_total" readonly="1" string="Total Achieved" widget='monetary' options="{'currency_field': 'currency_id'}" force_save="1"/>
+                        </group>
+                        <div class="oe_clear"/>
+                    </group>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="add_job_target_details" model="ir.actions.act_window">
+        <field name="name">Analysis</field>
+        <field name="res_model">job.target</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Analysis found. Let's create one!</p>
+        </field>
+    </record>
+
+    <menuitem id="analysis_job_sub_undermenu"
+          name="Analysis"
+          parent="jobs_management_menu"
+          sequence="02"
+          action="add_job_target_details"
+          groups="fxm_project_management.group_server_admin"
+          />
+
+</odoo>

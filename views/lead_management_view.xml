@@ -1,0 +1,80 @@
+<odoo>
+    <record id="lead_management_view" model="ir.ui.view">
+        <field name="name">lead_management_view</field>
+        <field name="model">lead.management</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="stage" widget="statusbar"/>
+                    <button name="action_lost" string="Lost" type="object" class="btn-secondary"/>
+                    <button name="%(fxm_project_management.lead_rejection_wizard_view)d" string="Mark as Lost"
+                            type="action" class="btn-secondary"
+                            groups="fxm_project_management.group_server_admin"
+                            attrs="{'invisible':['|',('stage', '=','lost'), ('stage', '=', 'project')]}"
+                            confirm="Are you sure?"/>
+
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Lost" bg_color="bg-danger" attrs="{'invisible': [('stage', '!=', 'lost')]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" string="Lead"/>
+                        <h1><field name="name" placeholder="Add Lead Name"/></h1>
+                        <div class="col">
+                            <div id="probability" class="o_row d-flex">
+                                <label for="probability" class="oe_edit_only" string="Probability"/>
+                                <field name="probability" widget="float" class="oe_inline"/>
+                                <span class="oe_grey"> %</span>
+                            </div>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_id"/>
+                            <field name="customer_phone"/>
+                            <field name="customer_mail"/>
+                            <field name="customer_website"/>
+                        </group>
+                        <group>
+                            <field name="project_type"/>
+                            <field name="project_type"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Internal Notes">
+                            <field name="note" placeholder="Add a description..."/>
+                        </page>
+                        <page string="Extra Info">
+                            <group>
+                                <group string="Analysis">
+                                    <field name="assigned_date"/>
+                                    <field name="ended_date"/>
+                                </group>
+                                <group>
+                                    <field name="lost_reason"/>
+                                </group>
+                            </group>
+
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="add_leads_details" model="ir.actions.act_window">
+        <field name="name">Leads</field>
+        <field name="res_model">lead.management</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Leads found. Let's create one!</p>
+        </field>
+    </record>
+
+    <menuitem id="lead_management_submenu"
+          name="Leads"
+          parent="client_management_menu"
+          sequence="05"
+          action="add_leads_details"
+          groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+
+</odoo>

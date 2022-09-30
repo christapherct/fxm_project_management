@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="client_rejection_view" model="ir.ui.view">
+        <field name="name">client.rejection.view</field>
+        <field name="model">client.rejection</field>
+        <field name="arch" type="xml">
+            <form string="Reason for Rejection">
+                <group>
+                    <group>
+                        <field name="task_management_id"/>
+                        <field name="reason"/>
+                    </group>
+                    <group>
+                        <field name="assigned_user"/>
+                        <field name="job_management_id"/>
+                        <field name="project_management_id"/>
+                    </group>
+                    <footer>
+                        <button string="Submit" name="rejection_reason" type="object" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="client_rejection_wizard_view">
+        <field name="name">Reason for Rejection (Client)</field>
+        <field name="res_model">client.rejection</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,279 @@
+<odoo>
+    <record id="task_priority_kanban" model="ir.ui.view">
+        <field name="name">task_priority_kanban</field>
+        <field name="model">task.management</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="task_priority">
+                <field name="name"/>
+                <field name="project_management_id"/>
+                <field name="partner_id"/>
+                <field name="task_priority"/>
+                <field name="total_days"/>
+                <field name="stage_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_hr_kanban_record">
+<!--                           <field name="image_emp" widget="image" class="o_kanban_image_fill_left" options="{'size': [100, 100]}"/>-->
+                           <div class="oe_kanban_details">
+                               <div class="col-10">
+                                   <div class="o_kanban_record_headings">
+                                       <div class="float-center">
+                                           <strong class="o_kanban_record_title">
+                                               <h4>
+                                                   <field name="name"/>
+                                               </h4>
+                                           </strong>
+                                       </div>
+                                   </div>
+
+                                   <field name="project_management_id" style="font-size:10;"/><br/>
+                                   <field name="stage_id"/>
+                                   <div class="o_row" attrs="{'invisible':[('task_priority','!=','expired')]}" style="font-size:13px; color:red; font-weight: bold;">
+                                        <field name="total_days" />
+                                        <span>Days Ago</span>
+                                   </div>
+                               </div>
+                           </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="task_management_calendar_view" model="ir.ui.view">
+        <field name="name">task.management.view</field>
+        <field name="model">task.management</field>
+        <field name="arch" type="xml">
+            <calendar string="Time Off" date_start="assigned_date" date_stop="deadline" mode="month" quick_add="False" color="partner_id">
+                <field name="partner_id" filters="1" invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
+     <record id="task_management_tree" model="ir.ui.view">
+        <field name="name">task_management_tree</field>
+        <field name="model">task.management</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="project_management_id"/>
+                <field name="partner_id"/>
+                <field name="deadline"/>
+                <field name="stage_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="task_management_search_view" model="ir.ui.view">
+        <field name="name">task.management.search.view</field>
+        <field name="model">task.management</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="group_customer_id" string="Task" icon="terp-partner"
+                        context="{'group_by':'name'}"/>
+                <filter name="group_customer_id" string="Deadline" icon="terp-partner"
+                        context="{'group_by':'deadline'}"/>
+                <filter name="group_customer_id" string="Designers" icon="terp-partner"
+                        context="{'group_by':'partner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="task_management_view" model="ir.ui.view">
+        <field name="name">task_management_views</field>
+        <field name="model">task.management</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="approve_tl_stage_stage" string="Approval" type="object" class="oe_highlight"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','submission')]}"
+                            confirm="Are you sure you want to approve this work?"/>
+                    <button name="approve_attachment" string="Submit" type="object" class="oe_highlight"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','assigned')]}"
+                            confirm="Are you sure you want to submit your work?"/>
+                    <button name="check_telegram" string="Check Telegram" type="object" class="btn btn-secondary"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','assigned')]}"
+                            />
+                    <button name="%(fxm_project_management.tl_rejection_wizard)d" string="Reject the Design" type="action" class="btn-secondary"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','submission')]}"
+                            confirm="Are you sure you want to reject the work?"/>
+                    <button name="approve_crm_approval" string="Approval" type="object" class="oe_highlight"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','tl_approval')]}"
+                            confirm="Are you sure you want to approve this work?"/>
+                    <button name="%(fxm_project_management.crm_rejection_wizard_view)d" string="Reject the Design" type="action" class="btn-secondary"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','tl_approval')]}"
+                            confirm="Are you sure you want to reject the work?"/>
+                    <button name="approve_client_approval" string="Approval" type="object" class="oe_highlight"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','crm_approval')]}"
+                            confirm="Are you sure you want to approve this work?"/>
+                    <button name="%(fxm_project_management.client_rejection_wizard_view)d" string="Reject the Design" type="action" class="btn-secondary"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','crm_approval')]}"
+                            confirm="Are you sure you want to reject the work?"/>
+                    <button name="completed_jobs" string="Completed" type="object" class="oe_highlight"
+                            groups="fxm_project_management.group_server_admin" attrs="{'invisible':[('stage_id','!=','client_approval')]}"
+                            confirm="Are you sure you want to complete this work?"/>
+                    <field name="stage_id" widget="statusbar"
+                            options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </group>
+                        <group>
+                            <h3 class="oe_right">
+                                <label for="total_days" string="Days Left : " attrs="{'invisible':[('deadline','=',False)]}"/>
+                                <field name="total_days" force_save="1" attrs="{'invisible':[('deadline','=',False)]}"/>
+                            </h3>
+<!--                            <field name="kanban_state" widget="state_selection" class="ml-auto oe_right" nolabel="1"/>-->
+                        </group>
+                    </group>
+                    <group >
+                        <group>
+                            <field name="client_id"/>
+                            <field name="project_management_id" domain="[('client_id', '=', client_id)]"/>
+                            <field name="job_management_id" context="{'hide_code': True}" domain="[('project_management_id', '=', project_management_id), ('client_management_id', '=', client_id)]"/>
+                            <field name="partner_id"/>
+                            <field name="deadline"/>
+                        </group>
+                        <group>
+
+                            <field name="checklist"/>
+                            <field name="file_link" widget="url"/>
+                            <field name="file" filename="file_name" records_draggable="1" attrs="{'invisible':[('stage_id','=','new')]}"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="task_priority" readonly="1" force_save="1"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Timesheet">
+                            <field name="timesheet_management_ids">
+                                <tree editable="bottom">
+                                    <field name="project_management_id" readonly="1"/>
+                                    <field name="user_id"/>
+                                    <button name="current_start_time" type="object" string="Start" class="btn-success" style="width: 50px"/>
+                                    <field name="date_from"/>
+                                    <button name="current_end_time" type="object" string="Stop" class="btn-warning" style="width: 50px;" />
+                                    <field name="date_to"/>
+                                    <field name="time_spent" widget="float_time"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Description here">
+                            <group>
+                                <field name="description" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Extra Info">
+                            <group>
+                                <group>
+                                    <field name="assigned_date" force_save="1"/>
+                                    <field name="updated_date" force_save="1"/>
+                                    <field name="submitted_date" force_save="1"/>
+                                </group>
+                                <group>
+                                    <field name="tl_reason" readonly="1"/>
+                                    <field name="crm_reason" readonly="1"/>
+                                    <field name="client_reason" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="task_management_details" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">task.management</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Projects found. Let's create one!</p>
+        </field>
+    </record>
+
+     <record id="project_task_view_form" model="ir.ui.view">
+        <field name="name">project_task_view_form</field>
+        <field name="model">task.management</field>
+        <field name="inherit_id" ref="fxm_project_management.task_management_view" />
+        <field name="groups_id" eval="[(6, 0, [ref('fxm_project_management.group_server_admin') ])]" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='deadline']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='project_management_id']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='client_id']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+               <attribute name="readonly">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_task_view_form_designer" model="ir.ui.view">
+        <field name="name">project_task_view_form_user</field>
+        <field name="model">task.management</field>
+        <field name="inherit_id" ref="fxm_project_management.task_management_view" />
+        <field name="groups_id" eval="[(6, 0, [ref('fxm_project_management.group_server_designer') ])]" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='deadline']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='project_management_id']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='client_id']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+               <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+        <menuitem id="task_management_submenu"
+              name="Tasks"
+              parent="client_management_menu"
+              sequence="15"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+
+    <menuitem id="task_management_add_menu"
+              name="Tasks"
+              parent="task_management_submenu"
+              sequence="1"
+              action="task_management_details"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+<!--    <menuitem id="task_management_event_menu"-->
+<!--              name="Events"-->
+<!--              parent="task_management_submenu"-->
+<!--              sequence="2"-->
+<!--              action="fxm_project_management.task_manage_calendar_view"-->
+<!--              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>-->
+
+</odoo>

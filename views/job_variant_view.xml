@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="job_variant_tree" model="ir.ui.view">
+        <field name="name">job.job.type.tree</field>
+        <field name="model">job.job.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="job_variant_view" model="ir.ui.view">
+        <field name="name">job_variants_view</field>
+        <field name="model">job.variants</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </group>
+                    </group>
+                    <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="add_job_variants" model="ir.actions.act_window">
+        <field name="name">Variant Job</field>
+        <field name="res_model">job.variants</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Job Types found. Let's create one!</p>
+        </field>
+    </record>
+
+        <menuitem id="job_variant_addmenu"
+              name="Job Variants"
+              parent="job_type_submenu"
+              sequence="2"
+              action="add_job_variants"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+
+</odoo>

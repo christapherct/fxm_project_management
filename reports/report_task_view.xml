@@ -1,0 +1,153 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<odoo>-->
+<!--    <template id="report_tasks">-->
+<!--        <t t-call="web.html_container">-->
+<!--            <t t-foreach="docs" t-as="doc">-->
+<!--                <t t-call="web.external_layout">-->
+<!--                    <h4>Invoice # <t t-esc="doc.name"/></h4>-->
+<!--                    <p>Task Name : <t t-esc="doc.task_management_id.name"/><br/>-->
+<!--                        Amount : <t t-esc="doc.amount"/></p>-->
+
+<!--                </t>-->
+<!--            </t>-->
+<!--        </t>-->
+<!--    </template>-->
+<!--    <record id="project_paperformat_qweb" model="report.paperformat">-->
+<!--        <field name="name">Project Details Paper Format</field>-->
+<!--        <field name="default" eval="True"/>-->
+<!--        <field name="format">A4</field>-->
+<!--        <field name="page_height">0</field>-->
+<!--        <field name="page_width">0</field>-->
+<!--        <field name="orientation">Portrait</field>-->
+<!--        <field name="margin_top">5</field>-->
+<!--        <field name="margin_bottom">18</field>-->
+<!--        <field name="margin_left">2</field>-->
+<!--        <field name="margin_right">2</field>-->
+<!--        <field name="header_line" eval="False"/>-->
+<!--        <field name="header_spacing">45</field>-->
+<!--        <field name="dpi">90</field>-->
+<!--    </record>-->
+<!--</odoo>-->
+
+<!--This XML file does not appear to have any style information associated with it. The document tree is shown below.-->
+<odoo>
+    <template id="project_detail_qweb_report" name="project_detail_qweb_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="e">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <form>
+                            <div class="container">
+                                <div>
+                                    <img src='/web/binary/company_logo' class="float-right" style="max-height: 65px; margin-top:20px;"
+                                     alt="Logo"/>
+                                    <span t-field="res_company.partner_id"
+                                      t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
+                                </div>
+                                <tr>
+                                    <th>
+                                        <div>
+                                            <div t-if="e.name">
+                                                <h2>
+                                                    <b>
+                                                        <span t-field="e.name"/>
+                                                    </b>
+                                                </h2>
+                                            </div>
+                                            <div style="text-align:right;" t-if="e.invoice_today">
+                                                <strong>Order Date:</strong>
+                                                <span t-field="e.invoice_today"/>
+                                            </div>
+                                        </div>
+<!--                                        <div t-if="e.name" class="align-right">-->
+<!--                                            <strong>Payment Term:</strong>-->
+<!--                                            <span t-field="e.name"/>-->
+<!--                                        </div>-->
+                                        <div t-if="e.add_client_id" class="col-xs-3">
+                                            <strong>Customer Name:</strong>
+                                            <span t-field="e.add_client_id"/>
+                                        </div>
+                                        <div t-if="e.project_management_id" class="col-xs-3">
+                                            <strong>Project Name:</strong>
+                                            <span t-field="e.project_management_id"/>
+                                        </div>
+                                        <div t-if="e.start_date" class="col-xs-3">
+                                            <strong> Start Date:</strong>
+                                            <span t-field="e.start_date"/>
+                                        </div>
+                                        <div t-if="e.end_date" class="col-xs-3">
+                                            <strong> End Date:</strong>
+                                            <span t-field="e.end_date"/>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <div>
+                                    <t t-if="e.job_management_ids">
+                                        <br/>
+                                        <div>
+                                            <tr>
+                                                <th>
+                                                    <h4>
+                                                        <b>Jobs</b>
+                                                    </h4>
+                                                </th>
+                                            </tr>
+                                        </div>
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th>Job Name</th>
+                                                    <th>Tax (%)</th>
+                                                    <th>Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="e.job_management_ids" t-as="t">
+                                                    <tr style="page-break-inside: avoid;">
+                                                        <td>
+                                                            <t t-if="t.name">
+                                                                <span t-field="t.name"/>
+                                                            </t>
+                                                            <t t-if="not t.name">-</t>
+                                                        </td>
+                                                        <td>
+                                                            <t t-if="t.price_tax">
+                                                                <span t-field="t.price_tax"/>
+                                                            </t>
+                                                            <t t-if="not t.price_tax">-</t>
+                                                        </td>
+                                                        <td>
+                                                            <t t-if="t.amount_untaxed">
+                                                                <span t-field="t.amount_untaxed"/>
+                                                            </t>
+                                                            <t t-if="not t.amount_untaxed">-</t>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </div>
+                                <div>
+                                    <div style="text-align:right;" t-if="e.amount_untaxed">
+                                        <strong>Total Price:</strong>
+                                        <span t-field="e.amount_untaxed"/>
+                                    </div>
+                                    <div style="text-align:right;" t-if="e.amount_tax">
+                                        <strong>Total Tax:</strong>
+                                        <span t-field="e.amount_tax"/>
+                                    </div>
+                                    <div class="border-black" style="text-align:right;" t-if="e.amount_total">
+                                        <h5><strong>Total Amount:</strong>
+                                        <span t-field="e.amount_total"/></h5>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

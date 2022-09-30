@@ -1,0 +1,87 @@
+<odoo>
+    <record id="client_management_tree" model="ir.ui.view">
+        <field name="name">client_management_tree</field>
+        <field name="model">client.management</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="category"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="client_management_view" model="ir.ui.view">
+        <field name="name">client_management_view</field>
+        <field name="model">client.management</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </group>
+                    </group>
+                    <group string="Client Details">
+                        <group>
+                            <field name="name"/>
+                            <field name="email"/>
+                            <field name="category"/>
+                            <field name="checklist"/>
+                        </group>
+                        <group>
+                            <field name="address"/>
+                            <field name="contact"/>
+                            <field name="office_num"/>
+                            <field name="website" widget="url"/>
+<!--                            <field name="social_media"/>-->
+                            <field name="facebook_url" widget="url"/>
+                            <field name="instagram_url" widget="url"/>
+                            <field name="proposal" widget="boolean_toggle" />
+                        </group>
+                    </group>
+                    <notebook attrs="{'invisible': [('proposal', '=', False)]}">
+                        <page name="Jobs">
+                            <field name="job_management_ids" context="{'default_job_category':'digital_work'}">
+                                <tree editable="bottom">
+<!--                                    <field name="name"/>-->
+                                    <field name="job_name"/>
+                                    <field name="job_category" readonly="1" force_save="1"/>
+                                    <field name="digital_category" />
+                                    <field name="created_date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="add_project_details" model="ir.actions.act_window">
+        <field name="name">Clients</field>
+        <field name="res_model">client.management</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No Client found. Let's create one!</p>
+        </field>
+    </record>
+
+    <menuitem id="client_management_menu"
+              name="Project Management"
+              sequence="30"
+
+    />
+    <menuitem id="client_management_submenu"
+              name="Clients"
+              parent="client_management_menu"
+              sequence="35"
+              action="add_project_details"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+</odoo>
