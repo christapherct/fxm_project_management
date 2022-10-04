@@ -83,7 +83,6 @@
                             <field name="name"/>
                             <field name="client_id"/>
                             <field name="project_type"/>
-<!--                            <field name="project_category"/>-->
                         </group>
                         <group>
                             <field name="start_date"/>

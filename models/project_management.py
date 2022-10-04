@@ -33,7 +33,7 @@ class ProjectAssignment(models.Model):
     state = fields.Selection(related="account_management_id.state", tracking=True)
     show_jobs = fields.Boolean(string="Show All Jobs", tracking=True, default=True)
     monthly_proposal = fields.Boolean(string="Monthly Proposal", compute="check_monthly_proposal")
-    lead_id = fields.Many2one('leads.management')
+    lead_id = fields.Many2one('lead.management')
 
     def set_kanban_color(self):
         for record in self:

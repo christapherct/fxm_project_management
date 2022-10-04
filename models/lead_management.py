@@ -30,10 +30,6 @@ class LeadManagement(models.Model):
     lost_reason = fields.Text(string="Lost Reason", readonly=True)
     project_count = fields.Integer(compute="check_project_count")
 
-    def check_project_count(self):
-        for partner in self:
-            partner.project_count = len(partner.project_management_ids)
-
     def action_lost_lead(self):
             return {
                 'res_model': 'lead.lost.reason',
@@ -48,10 +44,12 @@ class LeadManagement(models.Model):
         self.stage = 'hold'
 
     def project_creation(self):
+        self.probability = 100
         return {
             'res_model': 'project.management',
             'type': 'ir.actions.act_window',
             'context': {'default_client_id': self.customer_id.id,
+                        'default_lead_id': self.id
                         },
             'view_mode': 'form',
             'view_id': self.env.ref("fxm_project_management.project_management_view").id,
@@ -65,12 +63,19 @@ class LeadManagement(models.Model):
             'view_id': False,
             'res_model': 'project.management',
             'type': 'ir.actions.act_window',
-            'context': {'lead_id': self.id,
+            'context': {'default_lead_id': self.id,
                         },
+            'domain': [('lead_id', '=', self.id)],
             'target': 'current',
-            'domain': [('lead_id', '=', self.id)]
         }
         return staging_tree
+
+    def check_project_count(self):
+        # for partner in self:
+        #     partner.project_count = len(partner.project_management_ids)
+        self.project_count = self.env['project.management'].search_count([('lead_id', '=', self.id)])
+        # count = len(count_list)
+        #  = count
 
 
 class LostLeadManagement(models.TransientModel):
@@ -82,6 +87,7 @@ class LostLeadManagement(models.TransientModel):
 
     def lead_lost_reason(self):
         for rec in self.lead_management_id:
+            rec.probability = 0
             rec.stage = 'lost'
             rec.lost_reason = self.reason
             rec.ended_date = datetime.today()
