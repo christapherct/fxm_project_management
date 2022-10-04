@@ -19,7 +19,7 @@ class ProjectAssignment(models.Model):
     checklist = fields.Text(related="client_id.checklist", readonly=False, string="Checklist", track_visibility=True)
     proposal = fields.Boolean(related="client_id.proposal", readonly=False, string="Add Proposal", track_visibility=True)
     job_ids = fields.One2many(related="client_id.job_management_ids", readonly=False, string="Jobs", track_visibility=True)
-    project_type = fields.Selection(selection=[('one-time', 'One Time'), ('monthly', 'Monthly'), ('emergency', 'Emergency')],
+    project_type = fields.Selection(selection=[('one_time', 'One Time'), ('monthly', 'Monthly'), ('emergency', 'Emergency')],
                                     string="Project Type", track_visibility=True)
     start_date = fields.Date(default=fields.Date.today, readonly=False, string="Start Date", track_visibility=True)
     end_date = fields.Date(string="End Date", track_visibility=True)
@@ -34,10 +34,11 @@ class ProjectAssignment(models.Model):
     show_jobs = fields.Boolean(string="Show All Jobs", tracking=True, default=True)
     monthly_proposal = fields.Boolean(string="Monthly Proposal", compute="check_monthly_proposal")
     lead_id = fields.Many2one('lead.management')
+    pending_job_count = fields.Integer(compute="get_pending_job_count")
+    completed_job_count = fields.Integer(compute="get_completed_job_count")
 
     def set_kanban_color(self):
         for record in self:
-            # print("Hiiiiiiiiiiiiiiiiiiiiii")
             record.kanbancolor = 0
             if record.stage_id == 'new':
                 record.kanbancolor = 1
@@ -91,6 +92,12 @@ class ProjectAssignment(models.Model):
             'domain': [('project_management_id', '=', self.id), ('stage', '!=', 'completed')]
         }
         return staging_tree
+
+    def get_pending_job_count(self):
+        self.pending_job_count = self.env['job.management'].search_count([('project_management_id', '=', self.id), ('stage', '!=', 'completed')])
+
+    def get_completed_job_count(self):
+        self.completed_job_count = self.env['job.management'].search_count([('project_management_id', '=', self.id), ('stage', '=', 'completed')])
 
     def job_creation(self):
         return {

@@ -45,11 +45,13 @@ class LeadManagement(models.Model):
 
     def project_creation(self):
         self.probability = 100
+        self.stage = 'project'
         return {
             'res_model': 'project.management',
             'type': 'ir.actions.act_window',
             'context': {'default_client_id': self.customer_id.id,
-                        'default_lead_id': self.id
+                        'default_lead_id': self.id,
+                        'default_project_type': self.project_type
                         },
             'view_mode': 'form',
             'view_id': self.env.ref("fxm_project_management.project_management_view").id,
@@ -71,11 +73,11 @@ class LeadManagement(models.Model):
         return staging_tree
 
     def check_project_count(self):
-        # for partner in self:
-        #     partner.project_count = len(partner.project_management_ids)
         self.project_count = self.env['project.management'].search_count([('lead_id', '=', self.id)])
-        # count = len(count_list)
-        #  = count
+
+    def restore_lead(self):
+        for rec in self.lost_reason_ids:
+            self.stage = rec.stage_det
 
 
 class LostLeadManagement(models.TransientModel):
@@ -84,10 +86,16 @@ class LostLeadManagement(models.TransientModel):
 
     reason = fields.Text(string="Reason", track_visibility=True, required=True)
     lead_management_id = fields.Many2one('lead.management')
+    stage_det = fields.Selection(
+        selection=[('new', 'New'), ('hold', 'Hold'), ('project', 'Project'), ('lost', 'Lost')], track_visibility=True,
+        default='new')
 
     def lead_lost_reason(self):
         for rec in self.lead_management_id:
+            self.stage_det = rec.stage
+            print(self.stage_det)
             rec.probability = 0
             rec.stage = 'lost'
             rec.lost_reason = self.reason
             rec.ended_date = datetime.today()
+

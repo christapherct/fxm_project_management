@@ -66,10 +66,20 @@
                     <button name="job_creation" string="Create Jobs"
                         type="object" class="btn btn-primary" attrs="{'invisible': [('monthly_proposal','=',True)]}"/>
                     <div name="button_box" class="oe_button_box">
-                        <button class="oe_stat_button" type="object" name="pending_jobs" string="Pending Jobs"
-                                icon="fa-spinner"/>
-                        <button class="oe_stat_button" type="object" name="completed_jobs" string="Completed Jobs"
-                                icon="fa-check-square-o"/>
+                        <button class="oe_stat_button" type="object" name="pending_jobs"
+                                icon="fa-spinner">
+                            <div class="o_stat_info">
+                                <field name="pending_job_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Pending Jobs</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="completed_jobs"
+                                icon="fa-check-square-o">
+                            <div class="o_stat_info">
+                                <field name="completed_job_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Completed</span>
+                            </div>
+                        </button>
                     </div>
                     <group>
                         <group>
@@ -99,21 +109,22 @@
                                     <field name="job_category"/>
                                     <field name="digital_category"/>
                                     <field name="created_date"/>
+                                    <field name="stage"/>
                                 </tree>
                             </field>
                         </page>
-                        <page name="Jobs" attrs="{'invisible': [('project_type', '=', 'monthly')]}" >
-                            <field name="job_management_ids" readonly="1">
-                                <tree>
-                                    <field name="job_name"/>
-                                    <field name="job_type"/>
-                                    <field name="job_category"/>
-                                    <field name="print_category" attrs="{'invisible': [('job_category', '!=', 'print')]}"/>
-                                    <field name="branding_category" attrs="{'invisible': [('job_category', '!=', 'branding')]}"/>
-                                    <field name="created_date" force_save="1"/>
-                                </tree>
-                            </field>
-                        </page>
+<!--                        <page name="Jobs" attrs="{'invisible': [('project_type', '=', 'monthly')]}" >-->
+<!--                            <field name="job_management_ids" readonly="1">-->
+<!--                                <tree>-->
+<!--                                    <field name="job_name"/>-->
+<!--                                    <field name="job_type"/>-->
+<!--                                    <field name="job_category"/>-->
+<!--                                    <field name="print_category" attrs="{'invisible': [('branding_category', '=', True)]}"/>-->
+<!--                                    <field name="branding_category" attrs="{'invisible': [('job_category', '!=', 'branding')]}"/>-->
+<!--                                    <field name="created_date" force_save="1"/>-->
+<!--                                </tree>-->
+<!--                            </field>-->
+<!--                        </page>-->
                     </notebook>
 
 <!--                    <notebook attrs="{'invisible': [('project_type', '!=', monthly)]}">-->
