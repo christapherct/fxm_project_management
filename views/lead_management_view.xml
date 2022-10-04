@@ -6,15 +6,30 @@
             <form>
                 <header>
                     <field name="stage" widget="statusbar"/>
-                    <button name="action_lost" string="Lost" type="object" class="btn-secondary"/>
-                    <button name="%(fxm_project_management.lead_rejection_wizard_view)d" string="Mark as Lost"
-                            type="action" class="btn-secondary"
+                    <button name="project_creation" string="New Project" type="object" class="btn-primary"
+                        attrs="{'invisible':[('stage', '=', 'lost')]}"
+                    />
+                    <button name="action_lead_hold" string="Hold" type="object" class="btn-primary"
+                            attrs="{'invisible':[('stage', '!=', 'new')]}"
+                    />
+                    <button name="action_lost_lead" string="Mark as Lost"
+                            type="object" class="btn-secondary"
                             groups="fxm_project_management.group_server_admin"
                             attrs="{'invisible':['|',('stage', '=','lost'), ('stage', '=', 'project')]}"
-                            confirm="Are you sure?"/>
-
+                            confirm="Are you sure?"
+                    />
                 </header>
                 <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button class="oe_stat_button" type="object" name="check_projects"
+                                icon="fa-briefcase" attrs="{'invisible':[('stage', '=','lost')]}">
+                            <div class="o_stat_info">
+                                <field name="project_count" class="o_stat_value"/>
+                                <span class="o_stat_text"> Projects</span>
+                            </div>
+                        </button>
+                    </div>
+
                     <widget name="web_ribbon" title="Lost" bg_color="bg-danger" attrs="{'invisible': [('stage', '!=', 'lost')]}"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" string="Lead"/>
@@ -22,7 +37,7 @@
                         <div class="col">
                             <div id="probability" class="o_row d-flex">
                                 <label for="probability" class="oe_edit_only" string="Probability"/>
-                                <field name="probability" widget="float" class="oe_inline"/>
+                                <h3><field name="probability" widget="float" class="oe_inline"/></h3>
                                 <span class="oe_grey"> %</span>
                             </div>
                         </div>
@@ -30,12 +45,12 @@
                     <group>
                         <group>
                             <field name="customer_id"/>
+                            <field name="customer_address"/>
                             <field name="customer_phone"/>
                             <field name="customer_mail"/>
                             <field name="customer_website"/>
                         </group>
                         <group>
-                            <field name="project_type"/>
                             <field name="project_type"/>
                         </group>
                     </group>
@@ -44,8 +59,8 @@
                             <field name="note" placeholder="Add a description..."/>
                         </page>
                         <page string="Extra Info">
-                            <group>
-                                <group string="Analysis">
+                            <group string="Analysis">
+                                <group>
                                     <field name="assigned_date"/>
                                     <field name="ended_date"/>
                                 </group>
@@ -53,7 +68,6 @@
                                     <field name="lost_reason"/>
                                 </group>
                             </group>
-
                         </page>
                     </notebook>
                 </sheet>

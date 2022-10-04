@@ -10,7 +10,7 @@
                         <field name="reason"/>
                     </group>
                     <footer>
-                        <button string="Submit" name="rejection_reason" type="object" class="btn-primary"/>
+                        <button string="Submit" name="lead_lost_reason" type="object" class="btn-primary"/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
                     </footer>
                 </group>
