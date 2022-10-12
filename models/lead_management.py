@@ -29,6 +29,8 @@ class LeadManagement(models.Model):
         selection=[('new', 'New'), ('hold', 'Hold'), ('project', 'Project'), ('lost', 'Lost')], track_visibility=True, default='new')
     lost_reason = fields.Text(string="Lost Reason", readonly=True)
     project_count = fields.Integer(compute="check_project_count")
+    next_followup = fields.Date(string="Next Follow-up Date", readonly=False)
+    diff_date = fields.Integer()
 
     def action_lost_lead(self):
             return {
@@ -78,6 +80,38 @@ class LeadManagement(models.Model):
     def restore_lead(self):
         for rec in self.lost_reason_ids:
             self.stage = rec.stage_det
+    #
+    # @api.depends('next_followup')
+    # @api.onchange('next_followup')
+    # def create_notification(self):
+    #     if self.diff_date:
+    #         today = fields.date.today()
+    #         print(today, "tod")
+    #
+    #         for rec in self:
+    #             d1 = datetime.strptime(str(today), '%Y-%m-%d')
+    #             d2 = datetime.strptime(str(rec.next_followup), '%Y-%m-%d')
+    #             print(d2, "nx")
+    #             d3 = d2-d1
+    #             rec.diff_date = str(d3.days)
+    #             print(rec.diff_date)
+    #             if rec.diff_date < 3 and rec.diff_date >=0:
+    #                 return {
+    #                     'type': 'ir.actions.client',
+    #                     'tag': 'display_notification',
+    #                     'params': {
+    #                         'title': '_(Warning)',
+    #                         'message': 'Followup date is here',
+    #                         'sticky': True
+    #
+    #                     }
+    #                 }
+    #             elif rec.diff_date <0 :
+    #                 print("Exceeded")
+    #             else:
+    #                 return
+    #     else:
+    #         return
 
 
 class LostLeadManagement(models.TransientModel):

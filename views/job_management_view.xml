@@ -36,6 +36,21 @@
         </field>
     </record>
 
+    <record id="job_management_tree" model="ir.ui.view">
+        <field name="name">job_management_tree_form</field>
+        <field name="model">job.management</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="job_name"/>
+                <field name="client_id"/>
+                <field name="client_management_id"/>
+                <field name="project_management_id"/>
+                <field name="job_category"/>
+            </tree>
+        </field>
+    </record>
+
+
     <record id="job_management_search_view" model="ir.ui.view">
         <field name="name">job.management.search.view</field>
         <field name="model">job.management</field>
@@ -77,7 +92,8 @@
                             <field name="job_type"/>
                             <field name="client_management_id"/>
                             <field name="project_management_id" domain="[('client_id', '=', client_management_id)]"/>
-<!--                            <field name="social_medias"/>-->
+<!--                            <field name="project_type"/>-->
+<!--                            <field name="p_type"/>-->
 <!--                            <field name="job_type_id"/>-->
 <!--                            <field name="category"/>-->
                         </group>
@@ -147,7 +163,7 @@
     <record id="add_job_details" model="ir.actions.act_window">
         <field name="name">Jobs</field>
         <field name="res_model">job.management</field>
-        <field name="view_mode">kanban,form</field>
+        <field name="view_mode">kanban,tree,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Jobs found. Let's create one!</p>
         </field>

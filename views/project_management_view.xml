@@ -42,6 +42,32 @@
         </field>
     </record>
 
+    <record id="project_management_tree" model="ir.ui.view">
+        <field name="name">project_management_tree_form</field>
+        <field name="model">project.management</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="project_type"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="project_management_view_graph" model="ir.ui.view">
+        <field name="name">project.management.view.graph</field>
+        <field name="model">project.management</field>
+        <field name="arch" type="xml">
+            <graph string="Projects" sample="1">
+<!--                <field name="name" type="col"/>-->
+                <field name="client_id" type="col"/>
+                <field name="project_type" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+
     <record id="project_management_search_view" model="ir.ui.view">
         <field name="name">project.management.search.view</field>
         <field name="model">project.management</field>
@@ -153,7 +179,7 @@
     <record id="project_management_details" model="ir.actions.act_window">
         <field name="name">Projects</field>
         <field name="res_model">project.management</field>
-        <field name="view_mode">kanban,form</field>
+        <field name="view_mode">kanban,tree,graph,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Projects found. Let's create one!</p>
         </field>

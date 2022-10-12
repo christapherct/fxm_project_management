@@ -197,7 +197,7 @@
     <record id="task_management_details" model="ir.actions.act_window">
         <field name="name">Tasks</field>
         <field name="res_model">task.management</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,calendar,tree,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Projects found. Let's create one!</p>
         </field>
