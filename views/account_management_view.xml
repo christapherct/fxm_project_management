@@ -34,7 +34,26 @@
         <field name="model">account.management</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+<!--                    <button name="action_invoice_sent" string="Post" class="oe_highlight" type="object"  />-->
+                        <button name="action_invoice_sent" string="Confirm" class="oe_highlight" type="object" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <!-- Send (only invoices) -->
+<!--                        <button name="action_invoice_sent" type="object" string="Send &amp; Print" class="oe_highlight"/>-->
+                        <button name="action_invoice_sent" type="object" string="Send &amp; Print" attrs="{'invisible': [('state', '!=', 'done')]}" />
+                        <!-- Register Payment (only invoices / receiptsf) -->
+                        <button name="action_register_payment" type="object" class="oe_highlight" string="Register Payment" attrs="{'invisible': [('state', '!=', 'processing')]}"/>
+                        <!-- Preview (only customer invoices) -->
+                        <button name="action_invoice_sent" type="object" string="Preview" attrs="{'invisible': [('state', '!=', 'done')]}"/>
+                        <!-- Reverse -->
+<!--                        <button name="199" string="Reverse Entry" type="action" groups="account.group_account_invoice" attrs="{'invisible': ['|', ('move_type', '!=', 'entry'), '|', ('state', '!=', 'posted'), ('payment_state', '=', 'reversed')]}"/>-->
+<!--                        <button name="action_reverse" string="Add Credit Note" type="object" groups="account.group_account_invoice" attrs="{'invisible': ['|', ('move_type', 'not in', ('out_invoice', 'in_invoice')), ('state', '!=', 'posted')]}"/>-->
+                        <!-- Cancel -->
+<!--                        <button name="button_cancel" string="Cancel Entry" type="object" groups="account.group_account_invoice" attrs="{'invisible' : ['|', ('id', '=', False), ('state', '!=', 'draft')]}"/>-->
+<!--                        <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice" attrs="{'invisible' : [('show_reset_to_draft_button', '=', False)]}"/>-->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,processing,done"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Paid" attrs="{'invisible': [('state', '!=', 'done')]}"/>
                     <group>
                         <group>
                             <h1>
@@ -44,7 +63,7 @@
                     </group>
                     <group>
                         <group>
-                            <field name="project_management_id"/>
+                            <field name="project_management_id" domain="['|',('stage', '=', 'done'), ('stage', '!=', 'invoiced')]" options="{'no_create': True, 'no_create_edit':True}" />
                             <field name="add_client_id"/>
                             <field name="project_type"/>
                             <field name="project_category"/>
@@ -95,7 +114,7 @@
        <field name="name">Accounts </field>
        <field name="code">account.management</field>
 <!--       <field name="active">TRUE</field>-->
-       <field name="prefix">SER</field>
+       <field name="prefix">INV/</field>
        <field name="padding">5</field>
        <field name="number_next">1</field>
        <field name="number_increment">1</field>
@@ -112,7 +131,7 @@
     </record>
 
     <menuitem id="account_management_submenu"
-              name="Reporting"
+              name="Accounts"
               parent="client_management_menu"
               sequence="17"
               groups="fxm_project_management.group_server_accounts,fxm_project_management.group_server_admin"

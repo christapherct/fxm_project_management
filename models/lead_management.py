@@ -1,6 +1,8 @@
 from odoo import api, fields, models, _
 from datetime import datetime
 
+from odoo.exceptions import ValidationError
+
 
 class LeadManagement(models.Model):
     _name = "lead.management"
@@ -8,16 +10,20 @@ class LeadManagement(models.Model):
     _description = "Leads"
 
     lost_reason_ids = fields.One2many('lead.lost.reason', 'lead_management_id')
-    project_management_ids = fields.One2many('project.management', 'lead_id')
+    # project_management_ids = fields.One2many('project.management', 'lead_id')
     name = fields.Char(string="Lead Name", required=True, track_visibility=True)
-    customer_id = fields.Many2one('client.management', string="Customer Name", required=True, track_visibility=True)
-    checklist = fields.Text(related="customer_id.checklist", readonly=False, string="Checklist", track_visibility=True)
-    proposal = fields.Boolean(related="customer_id.proposal", readonly=False, string="Add Proposal",
-                              track_visibility=True)
-    customer_address = fields.Text(related="customer_id.address", string="Customer Address", track_visibility=True, readonly=False)
-    customer_phone = fields.Char(related="customer_id.contact", string="Customer Phone", track_visibility=True, readonly=False)
-    customer_mail = fields.Char(related="customer_id.contact", string="Customer Email", track_visibility=True, readonly=False)
-    customer_website = fields.Char(related="customer_id.website", string="Website", track_visibility=True, readonly=False)
+    customer_name = fields.Char(string="Customer Name", required=True)
+    customer_phone = fields.Char(string="Customer Phone")
+    customer_address = fields.Text(string="Address")
+    company_category = fields.Char(string="Company Category")
+    customer_id = fields.Many2one('client.management', string="Customer Name", track_visibility=True)
+    # checklist = fields.Text(related="customer_id.checklist", readonly=False, string="Checklist", track_visibility=True)
+    # proposal = fields.Boolean(related="customer_id.proposal", readonly=False, string="Add Proposal",
+    #                           track_visibility=True)
+    # customer_address = fields.Text(related="customer_id.address", string="Customer Address", track_visibility=True, readonly=False)
+    # customer_phone = fields.Char(related="customer_id.contact", string="Customer Phone", track_visibility=True, readonly=False)
+    # customer_mail = fields.Char(related="customer_id.contact", string="Customer Email", track_visibility=True, readonly=False)
+    # customer_website = fields.Char(related="customer_id.website", string="Website", track_visibility=True, readonly=False)
     probability = fields.Float(string="Probability", track_visibility=True)
     project_type = fields.Selection(
         selection=[('one-time', 'One Time'), ('monthly', 'Monthly'), ('emergency', 'Emergency')],
@@ -26,9 +32,9 @@ class LeadManagement(models.Model):
     assigned_date = fields.Datetime(string="Assigned Date", default=fields.Date.today, readonly=True)
     ended_date = fields.Datetime(string="End Date", readonly=True)
     stage = fields.Selection(
-        selection=[('new', 'New'), ('hold', 'Hold'), ('project', 'Project'), ('lost', 'Lost')], track_visibility=True, default='new')
+        selection=[('new', 'New'), ('hold', 'Hold'), ('client', 'Converted to Client'), ('lost', 'Lost')], track_visibility=True, default='new')
     lost_reason = fields.Text(string="Lost Reason", readonly=True)
-    project_count = fields.Integer(compute="check_project_count")
+    # project_count = fields.Integer(compute="check_project_count")
     next_followup = fields.Date(string="Next Follow-up Date", readonly=False)
     diff_date = fields.Integer()
 
@@ -45,73 +51,46 @@ class LeadManagement(models.Model):
     def action_lead_hold(self):
         self.stage = 'hold'
 
-    def project_creation(self):
-        self.probability = 100
-        self.stage = 'project'
-        return {
-            'res_model': 'project.management',
-            'type': 'ir.actions.act_window',
-            'context': {'default_client_id': self.customer_id.id,
-                        'default_lead_id': self.id,
-                        'default_project_type': self.project_type
-                        },
-            'view_mode': 'form',
-            'view_id': self.env.ref("fxm_project_management.project_management_view").id,
-            }
-
-    def check_projects(self):
+    def check_client(self):
         staging_tree = {
-            'name': _('Projects'),
+            'name': _('Clients'),
             'view_type': 'form',
-            'view_mode': 'tree,form',
-            'view_id': False,
-            'res_model': 'project.management',
+            'view_mode': 'form',
+            'view_id': self.env.ref("fxm_project_management.add_client_details").id,
+            'res_model': 'client.management',
+
             'type': 'ir.actions.act_window',
-            'context': {'default_lead_id': self.id,
-                        },
-            'domain': [('lead_id', '=', self.id)],
+            'context': {'default_name': self.customer_name},
             'target': 'current',
+            'domain': [('name', '=', self.customer_name)]
         }
         return staging_tree
 
-    def check_project_count(self):
-        self.project_count = self.env['project.management'].search_count([('lead_id', '=', self.id)])
+    def action_view_client(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('fxm_project_management.add_client_details')
+        if self.name:
+            action['domain'] = [('name', '=', self.customer_name)]
+            # action['views'] = [(False, 'form')]
+            action['res_id'] = self.customer_id.id
+        return action
 
     def restore_lead(self):
         for rec in self.lost_reason_ids:
             self.stage = rec.stage_det
-    #
-    # @api.depends('next_followup')
-    # @api.onchange('next_followup')
-    # def create_notification(self):
-    #     if self.diff_date:
-    #         today = fields.date.today()
-    #         print(today, "tod")
-    #
-    #         for rec in self:
-    #             d1 = datetime.strptime(str(today), '%Y-%m-%d')
-    #             d2 = datetime.strptime(str(rec.next_followup), '%Y-%m-%d')
-    #             print(d2, "nx")
-    #             d3 = d2-d1
-    #             rec.diff_date = str(d3.days)
-    #             print(rec.diff_date)
-    #             if rec.diff_date < 3 and rec.diff_date >=0:
-    #                 return {
-    #                     'type': 'ir.actions.client',
-    #                     'tag': 'display_notification',
-    #                     'params': {
-    #                         'title': '_(Warning)',
-    #                         'message': 'Followup date is here',
-    #                         'sticky': True
-    #
-    #                     }
-    #                 }
-    #             elif rec.diff_date <0 :
-    #                 print("Exceeded")
-    #             else:
-    #                 return
-    #     else:
-    #         return
+
+    def client_creation(self):
+        self.probability = 100
+        self.stage = 'client'
+        return {
+            'res_model': 'client.management',
+            'type': 'ir.actions.act_window',
+            'context': {'default_name': self.customer_name,
+                        'default_address': self.customer_address,
+                        'default_contact': self.customer_phone,
+                        },
+            'view_mode': 'form',
+            'view_id': self.env.ref("fxm_project_management.client_management_view").id,
+        }
 
 
 class LostLeadManagement(models.TransientModel):
@@ -121,7 +100,7 @@ class LostLeadManagement(models.TransientModel):
     reason = fields.Text(string="Reason", track_visibility=True, required=True)
     lead_management_id = fields.Many2one('lead.management')
     stage_det = fields.Selection(
-        selection=[('new', 'New'), ('hold', 'Hold'), ('project', 'Project'), ('lost', 'Lost')], track_visibility=True,
+        selection=[('new', 'New'), ('hold', 'Hold'), ('client', 'Converted to Client'), ('lost', 'Lost')], track_visibility=True,
         default='new')
 
     def lead_lost_reason(self):
@@ -132,4 +111,6 @@ class LostLeadManagement(models.TransientModel):
             rec.stage = 'lost'
             rec.lost_reason = self.reason
             rec.ended_date = datetime.today()
+
+
 

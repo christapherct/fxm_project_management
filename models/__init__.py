@@ -10,4 +10,6 @@ from . import job_target
 from . import task_event
 from . import rejection_mangement
 from . import lead_management
+from . import account_inherit_management
+from . import employee_inherit
 

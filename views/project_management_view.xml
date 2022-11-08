@@ -51,6 +51,8 @@
                 <field name="client_id"/>
                 <field name="project_type"/>
                 <field name="description"/>
+                <field name="stage" widget="badge" decoration-danger="stage == 'cancel'" decoration-success="stage == 'invoiced'"
+                       decoration-warning="stage == 'done'" decoration-info="stage == 'new'"/>
             </tree>
         </field>
     </record>
@@ -60,7 +62,6 @@
         <field name="model">project.management</field>
         <field name="arch" type="xml">
             <graph string="Projects" sample="1">
-<!--                <field name="name" type="col"/>-->
                 <field name="client_id" type="col"/>
                 <field name="project_type" type="row"/>
             </graph>
@@ -77,8 +78,6 @@
                         context="{'group_by':'name'}"/>
                 <filter name="group_customer_id" string="Client" icon="terp-partner"
                         context="{'group_by':'client_id'}"/>
-<!--                <filter name="group_customer_id" string="Category" icon="terp-partner"-->
-<!--                        context="{'group_by':'project_category'}"/>-->
             </search>
         </field>
     </record>
@@ -88,9 +87,16 @@
         <field name="model">project.management</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_complete_project" string="Completed"
+                            type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'new')]}"/>
+                    <button name="action_check_invoice" string="Create Invoice"
+                            type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'done')]}"/>
+                    <field name="stage" widget="statusbar"/>
+                </header>
                 <sheet>
                     <button name="job_creation" string="Create Jobs"
-                        type="object" class="btn btn-primary" attrs="{'invisible': [('monthly_proposal','=',True)]}"/>
+                        type="object" class="btn btn-primary" attrs="{'invisible': ['|',('stage', '!=', 'new'), ('monthly_proposal','=',True)]}"/>
                     <div name="button_box" class="oe_button_box">
                         <button class="oe_stat_button" type="object" name="pending_jobs"
                                 icon="fa-spinner">
@@ -135,38 +141,11 @@
                                     <field name="job_category"/>
                                     <field name="digital_category"/>
                                     <field name="created_date"/>
-                                    <field name="stage"/>
+                                    <field name="stage" string="Status"/>
                                 </tree>
                             </field>
                         </page>
-<!--                        <page name="Jobs" attrs="{'invisible': [('project_type', '=', 'monthly')]}" >-->
-<!--                            <field name="job_management_ids" readonly="1">-->
-<!--                                <tree>-->
-<!--                                    <field name="job_name"/>-->
-<!--                                    <field name="job_type"/>-->
-<!--                                    <field name="job_category"/>-->
-<!--                                    <field name="print_category" attrs="{'invisible': [('branding_category', '=', True)]}"/>-->
-<!--                                    <field name="branding_category" attrs="{'invisible': [('job_category', '!=', 'branding')]}"/>-->
-<!--                                    <field name="created_date" force_save="1"/>-->
-<!--                                </tree>-->
-<!--                            </field>-->
-<!--                        </page>-->
                     </notebook>
-
-<!--                    <notebook attrs="{'invisible': [('project_type', '!=', monthly)]}">-->
-<!--                        <page string="Jobs">-->
-<!--                            <field name="job_ids" >-->
-<!--                                <tree>-->
-<!--                                    <field name="job_name"/>-->
-<!--                                    <field name="project_management_id" />-->
-<!--                                    <field name="client_management_id"/>-->
-<!--                                    <field name="price_tax"/>-->
-<!--                                    <field name="amount_untaxed"/>-->
-<!--                                    <field name="stage"/>-->
-<!--                                </tree>-->
-<!--                            </field>-->
-<!--                        </page>-->
-<!--                    </notebook>-->
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
@@ -179,7 +158,7 @@
     <record id="project_management_details" model="ir.actions.act_window">
         <field name="name">Projects</field>
         <field name="res_model">project.management</field>
-        <field name="view_mode">kanban,tree,graph,form</field>
+        <field name="view_mode">tree,graph,form,kanban</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Projects found. Let's create one!</p>
         </field>

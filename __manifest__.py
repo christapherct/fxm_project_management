@@ -31,6 +31,8 @@
          'views/job_target_view.xml',
          'views/job_variant_view.xml',
          'views/target_management_view.xml',
+         'views/account_inherit_view.xml',
+         'views/employee_inherit_view.xml',
 
 
 

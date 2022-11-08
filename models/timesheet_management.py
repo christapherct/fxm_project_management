@@ -11,6 +11,7 @@ class TimesheeetAssignment(models.Model):
 
     task_management_id = fields.Many2one('task.management')
     designer_management_id = fields.Many2one('designer.management')
+    employee_management_id = fields.Many2one('hr.employee')
     name = fields.Char(string="Name", track_visibility=True)
     user_id = fields.Many2one(related="task_management_id.partner_id", readonly=False, track_visibility=True)
     project_management_id = fields.Many2one(related="task_management_id.project_management_id", track_visibility=True, required=True)

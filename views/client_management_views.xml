@@ -16,7 +16,20 @@
         <field name="model">client.management</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="project_creation" string="New Project" type="object" class="btn-primary"/>
+                </header>
                 <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button class="oe_stat_button" type="object" name="check_projects"
+                                icon="fa-briefcase">
+                            <div class="o_stat_info">
+                                <field name="project_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Projects</span>
+                            </div>
+                        </button>
+                    </div>
+
                     <group>
                         <group>
                             <h1>
@@ -64,7 +77,7 @@
         </field>
     </record>
 
-    <record id="add_project_details" model="ir.actions.act_window">
+    <record id="add_client_details" model="ir.actions.act_window">
         <field name="name">Clients</field>
         <field name="res_model">client.management</field>
         <field name="view_mode">tree,form</field>
@@ -76,12 +89,11 @@
     <menuitem id="client_management_menu"
               name="Project Management"
               sequence="30"
-
     />
     <menuitem id="client_management_submenu"
               name="Clients"
               parent="client_management_menu"
-              sequence="35"
-              action="add_project_details"
+              sequence="08"
+              action="add_client_details"
               groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
 </odoo>

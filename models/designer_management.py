@@ -7,7 +7,7 @@ class DesignerAssignment(models.Model):
     _description = "Designer"
 
     add_task_ids = fields.One2many('task.management', 'partner_id')
-    timesheet_management_ids = fields.One2many('timesheet.management', 'designer_management_id', compute="action_staging")
+    timesheet_management_ids = fields.One2many('timesheet.management', 'designer_management_id')
 
     name = fields.Char(string='Designer Name', track_visibility=True, required=True)
     department = fields.Char(string="Department", track_visibility=True)

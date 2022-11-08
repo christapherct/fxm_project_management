@@ -2,7 +2,7 @@ import datetime
 from datetime import datetime
 
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class TaskAssignment(models.Model):
@@ -22,6 +22,7 @@ class TaskAssignment(models.Model):
     project_management_id = fields.Many2one(related="job_management_id.project_management_id", string="Project", required=True)
     user_id = fields.Many2one('designer.management')
     partner_id = fields.Many2one('designer.management', string="Assigned to")
+    employee_id = fields.Many2one('hr.employee', string="Assigned to")
     assigned_date = fields.Datetime(string="Assigned Date", readonly=True)
     updated_date = fields.Datetime(string="Last Updated Date", readonly=True)
     submitted_date = fields.Datetime(string="Submitted Date", readonly=True)
@@ -38,7 +39,7 @@ class TaskAssignment(models.Model):
     file = fields.Binary("Submit Attachment")
     file_name = fields.Char("File Name")
     file_link = fields.Char(string="File Link")
-    priority = fields.Selection([('low', 'Low'), ('medium', 'Medium'), ('high', 'High'),],
+    priority = fields.Selection([('low', 'Low'), ('medium', 'Medium'), ('high', 'High')],
                                 string="Priority", tracking=True)
     task_priority = fields.Selection([('expired', 'Expired'), ('today', 'Today'), ('tomorrow', 'Tomorrow'), ('week', 'In this Week'), ('x_later', 'Later')],
                                      string='Task Priority', tracking=True)
@@ -52,7 +53,6 @@ class TaskAssignment(models.Model):
         if self.partner_id:
             self.assigned_date = fields.Datetime.now()
             self.stage_id = 'assigned'
-            # self.user_id.name.notify_warning(message="New Tasks assigned to you.Please Check it.")
         else:
             self.assigned_date = None
             self.stage_id = 'new'
@@ -63,33 +63,53 @@ class TaskAssignment(models.Model):
             d11 = fields.Date.today()
             d1 = datetime.strptime(str(d11), '%Y-%m-%d')
             d2 = datetime.strptime(str(self.deadline), '%Y-%m-%d')
-            # if d1 > d2:
-            #     raise ValidationError('end date should be superior than today')
-            # else:
             d3 = d2 - d1
             self.total_days = str(d3.days)
 
-    # @api.onchange('file')
-    # def change_submission_stages(self):
-    #     print("hi")
-        # if self.file and self.partner_id:
-        #     for rec in self:
-        #         rec.stage_id = 'submission'
-        #         rec.submitted_date = fields.Datetime.now()
-        # else:
-        #     raise ValidationError("Assigned user and Attachment submission should not be empty")
+    def open_tl_reject_wizard(self):
+        return {
+            'res_model': 'tl.rejection',
+            'type': 'ir.actions.act_window',
+            'context': {'default_task_management_id': self.id,
+                        },
+            'view_mode': 'form',
+            'target': 'new',
+
+            }
+
+    def open_crm_reject_wizard(self):
+        return {
+            'res_model': 'crm.rejection',
+            'type': 'ir.actions.act_window',
+            'context': {'default_task_management_id': self.id,
+                        },
+            'view_mode': 'form',
+            'target': 'new',
+
+            }
+
+    def open_client_reject_wizard(self):
+        return {
+            'res_model': 'client.rejection',
+            'type': 'ir.actions.act_window',
+            'context': {'default_task_management_id': self.id,
+                        },
+            'view_mode': 'form',
+            'target': 'new',
+
+            }
 
     @api.onchange('timesheet_management_ids')
     def change_updation_time(self):
         self.updated_date = fields.Datetime.now()
 
     def approve_attachment(self):
-        if self.file and self.partner_id:
+        if self.file_link and self.partner_id:
             for rec in self:
                 rec.stage_id = 'submission'
                 rec.submitted_date = fields.Datetime.now()
         else:
-            raise ValidationError("Assigned user and Attachment submission should not be empty")
+            raise ValidationError("Make sure that the Assigned user and File link fields are not be empty")
 
     def check_telegram(self):
         return {
@@ -104,10 +124,16 @@ class TaskAssignment(models.Model):
         self.stage_id = 'crm_approval'
 
     def approve_client_approval(self):
-            self.stage_id = 'client_approval'
+        self.stage_id = 'client_approval'
 
     def completed_jobs(self):
         self.stage_id = 'completed'
+
+    def write(self, vals):
+        if any(stage_id == 'completed' for stage_id in set(self.mapped('stage_id'))):
+            raise UserError(_("No edits in Completed task"))
+        else:
+            return super().write(vals)
 
     @api.onchange('total_days')
     def date_difference(self):

@@ -24,16 +24,25 @@ class AccountManagement(models.Model):
     amount_total = fields.Float(string="Total Amount", store=True, readonly=True, compute="_amount_all")
     amount_tax = fields.Float(string="Tax(%)", store=True, readonly=True, compute='_amount_all',)
     client_management_id = fields.Many2one('client.management')
-    state = fields.Selection([('draft', 'Draft'), ('done', 'Sale Order')], string="Stage", default='draft', tracking=True)
+    state = fields.Selection([('draft', 'Draft'), ('processing', 'Processing'), ('done', 'Posted')], string="State", default='draft', tracking=True)
     _sql_constraints = [('project_management_id', 'unique (project_management_id)', 'This one is already selected.')]
+
+    def action_invoice_sent(self):
+        return
+
+    # @api.model
+    # def create(self, vals):
+    #     vals['state'] = 'processing'
+    #     return super(AccountManagement, self).create(vals)
+
+    def action_register_payment(self):
+        self.state = 'done'
 
     @api.depends('job_management_ids.price_subtotal')
     def _amount_all(self):
         for order in self:
             amount_untaxed = amount_tax = 0.0
-            # a = self.amount_tax
             for line in order.job_management_ids:
-                # line._compute_amount()
                 amount_untaxed += line.amount_untaxed
                 a = line.price_tax
                 b = a /100
@@ -48,7 +57,7 @@ class AccountManagement(models.Model):
     def create(self, vals):
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('account.management') or 'New'
-            vals['state'] = 'done'
+            vals['state'] = 'processing'
         result = super(AccountManagement, self).create(vals)
 
         return result

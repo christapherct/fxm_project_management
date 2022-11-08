@@ -1,0 +1,77 @@
+<odoo>
+    <record id="view_move_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group/field[@name='partner_id']" position="after">
+                <field name="partner_id" invisible="1"/>
+                <field name="project_management_id" domain="['|',('stage', '=', 'done'), ('stage', '!=', 'invoiced')]" options="{'no_create': True, 'no_create_edit':True}"/>
+            </xpath>
+            <label for="partner_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </label>
+            <field name="partner_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <xpath expr="//sheet/group/group/field[@name='project_management_id']" position="after">
+                <field name="client_management_id"/>
+            </xpath>
+            <xpath expr="//sheet/group/group/field[@name='client_management_id']" position="after">
+                <field name="project_type"/>
+            </xpath>
+            <xpath expr="//sheet/group/group/field[@name='project_type']" position="after">
+                <field name="project_category"/>
+            </xpath>
+            <xpath expr="//sheet/group/group/field[@name='invoice_date']" position="after">
+                <field name="start_date"/>
+            </xpath>
+            <xpath expr="//sheet/group/group/field[@name='start_date']" position="after">
+                <field name="end_date"/>
+            </xpath>
+<!--            <xpath expr="//header/button[@name='action_post']" position="replace">-->
+<!--                <button name="action_invoice_sent" string="Confirm" class="oe_highlight" type="object" />-->
+<!--            </xpath>-->
+
+            <xpath expr="//sheet/notebook/page[@id='invoice_tab']" position="replace">
+                <page string="Jobs">
+                    <field name="job_management_ids" options="{'no_create': True}">
+                        <tree editable="bottom">
+                            <field name="name" readonly="1"/>
+                            <field name="project_management_id" readonly="1"/>
+                            <field name="client_management_id" readonly="1"/>
+                            <field name="price_tax" readonly="0"/>
+                            <field name="amount_untaxed" readonly="0"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//sheet/notebook/page/field[@name='job_management_ids']" position="after">
+                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                    <group colspan="4">
+                        <field name="note" nolabel="1" placeholder="Terms and conditions..."/>
+                    </group>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                        <field name="amount_untaxed" string="Total Price" widget='monetary'
+                               options="{'currency_field': 'currency_id'}"/>
+                        <field name="amount_tax" string="Total Tax" widget='monetary'
+                               options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="amount_total"/>
+                        </div>
+                        <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary'
+                               options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                    <div class="oe_clear"/>
+                </group>
+            </xpath>
+
+
+
+
+<!--            <field name="partner_id" position="attributes">-->
+<!--                <attribute name="readonly">True</attribute>-->
+<!--            </field>-->
+        </field>
+    </record>
+</odoo>

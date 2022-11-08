@@ -12,7 +12,8 @@ class ProjectAssignment(models.Model):
     _description = "Project"
 
     account_management_id = fields.One2many('account.management', 'project_management_id')
-    job_management_ids = fields.One2many('job.management', 'project_management_id', domain=[('stage', '!=', 'completed')])
+    account_inherit_id = fields.One2many('account.move', 'project_management_id')
+    job_management_ids = fields.One2many('job.management', 'project_management_id')
     task_management_ids = fields.One2many('task.management', 'project_management_id')
     name = fields.Char(string="Project Name", track_visibility=True, required=True)
     client_id = fields.Many2one('client.management', string="Client Name", track_visibility=True, required=True)
@@ -33,9 +34,18 @@ class ProjectAssignment(models.Model):
     state = fields.Selection(related="account_management_id.state", tracking=True)
     show_jobs = fields.Boolean(string="Show All Jobs", tracking=True, default=True)
     monthly_proposal = fields.Boolean(string="Monthly Proposal", compute="check_monthly_proposal")
-    lead_id = fields.Many2one('lead.management')
+    # lead_id = fields.Many2one('lead.management')
     pending_job_count = fields.Integer(compute="get_pending_job_count")
     completed_job_count = fields.Integer(compute="get_completed_job_count")
+    stage = fields.Selection(
+        selection=[('new', 'New'), ('in_progress', 'In Progress'), ('done', 'Done'), ('invoiced', 'Invoiced'), ('cancel', 'Cancelled')], track_visibility=True,
+        default='new')
+
+    def write(self, vals):
+        if any(stage == 'invoiced' for stage in set(self.mapped('stage'))):
+            raise UserError(_("No edits in Completed jobs"))
+        else:
+            return super().write(vals)
 
     def set_kanban_color(self):
         for record in self:
@@ -64,6 +74,28 @@ class ProjectAssignment(models.Model):
             d2 = datetime.strptime(str(self.end_date), '%Y-%m-%d')
             if d2 < d1:
                 raise ValidationError('End date should not before than start date.')
+
+    def action_complete_project(self):
+        data = []
+        for rec in self.job_management_ids:
+            data.append(rec.stage)
+        if 'new' in data or 'processing' in data or 'hold' in data:
+            raise ValidationError("Please ensure that all of the Jobs were completed")
+        elif not self.job_management_ids:
+            raise ValidationError("There is no Jobs found")
+        else:
+            self.stage = 'done'
+
+    def action_check_invoice(self):
+        self.stage = 'invoiced'
+        return {
+            'res_model': 'account.management',
+            'type': 'ir.actions.act_window',
+            'context': {'default_project_management_id': self.id,
+                        },
+            'view_mode': 'form',
+            'view_id': self.env.ref("fxm_project_management.account_task_view").id,
+        }
 
     def completed_jobs(self):
         staging_tree = {
@@ -108,13 +140,6 @@ class ProjectAssignment(models.Model):
             'view_mode': 'form',
             'view_id': self.env.ref("fxm_project_management.job_task_view").id,
             }
-
-    # def check_monthly_proposal(self):
-    #     for rec in self.client_id:
-    #         if rec.proposal == True:
-    #             self.proposal = True
-    #         else:
-    #             self.proposal = False
 
     @api.depends('start_date')
     def _check_project_date(self):

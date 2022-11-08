@@ -5,10 +5,12 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="customer_id"/>
+<!--                <field name="customer_id"/>-->
+<!--                <field name="customer_phone"/>-->
                 <field name="project_type"/>
                 <field name="next_followup"/>
-                <field name="stage"/>
+                <field name="stage" string="Status" widget="badge" decoration-danger="stage == 'lost'" decoration-success="stage == 'project'"
+                       decoration-warning="stage == 'hold'" decoration-info="stage == 'new'"/>
             </tree>
         </field>
     </record>
@@ -17,9 +19,9 @@
         <field name="model">lead.management</field>
         <field name="priority" eval="2"/>
         <field name="arch" type="xml">
-            <calendar string="Scheduled Actions" date_start="next_followup" color="customer_id">
+            <calendar string="Scheduled Actions" date_start="next_followup" color="customer_name">
                 <field name="name"/>
-                <field name="customer_id" filters="1" />
+                <field name="customer_name" filters="1" />
             </calendar>
         </field>
     </record>
@@ -30,7 +32,7 @@
         <field name="arch" type="xml">
             <graph string="Lead Status" sample="1">
                 <field name="stage" type="col"/>
-                <field name="customer_id" type="row"/>
+<!--                <field name="customer_id" type="row"/>-->
             </graph>
         </field>
     </record>
@@ -44,17 +46,20 @@
             <form>
                 <header>
                     <field name="stage" widget="statusbar"/>
-                    <button name="project_creation" string="New Project" type="object" class="btn-primary"
-                        attrs="{'invisible':[('stage', '=', 'lost')]}"
+                    <button name="client_creation" string="Convert to Client" type="object" class="btn-primary"
+                        attrs="{'invisible':['|',('stage', '=', 'lost'), ('stage', '=', 'client')]}"
                     />
+<!--                    <button name="project_creation" string="New Project" type="object" class="btn-primary"-->
+<!--                        attrs="{'invisible':[('stage', '=', 'lost')]}"-->
+<!--                    />-->
                     <button name="action_lead_hold" string="Hold" type="object" class="btn-primary"
                             attrs="{'invisible':[('stage', '!=', 'new')]}"
                     />
                     <button name="action_lost_lead" string="Mark as Lost"
                             type="object" class="btn-secondary"
                             groups="fxm_project_management.group_server_admin"
-                            attrs="{'invisible':['|',('stage', '=','lost'), ('stage', '=', 'project')]}"
-                            confirm="Are you sure?"
+                            attrs="{'invisible':[('stage', '=','lost')]}"
+                            confirm="Do you want to lost your lead?"
                     />
                     <button name="restore_lead" string="Restore"
                             type="object" class="btn-secondary"
@@ -66,15 +71,11 @@
                 </header>
                 <sheet>
                     <div name="button_box" class="oe_button_box">
-                        <button class="oe_stat_button" type="object" name="check_projects"
-                                icon="fa-briefcase" attrs="{'invisible':[('stage', '=','lost')]}">
-                            <div class="o_stat_info">
-                                <field name="project_count" class="o_stat_value"/>
-                                <span class="o_stat_text"> Projects</span>
-                            </div>
+                        <button class="oe_stat_button" type="object" name="action_view_client"
+                                icon="fa-edit" create="false" edit="false" string="Client"
+                                attrs="{'invisible': ['|', ('stage', '!=', 'client'), ('stage', '=', 'new')]}">
                         </button>
                     </div>
-
                     <widget name="web_ribbon" title="Lost" bg_color="bg-danger" attrs="{'invisible': [('stage', '!=', 'lost')]}"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" string="Lead"/>
@@ -89,11 +90,15 @@
                     </div>
                     <group>
                         <group>
-                            <field name="customer_id"/>
-                            <field name="customer_address"/>
+<!--                            <field name="customer_id"/>-->
+<!--                            <field name="customer_address"/>-->
+<!--                            <field name="customer_phone"/>-->
+<!--                            <field name="customer_mail"/>-->
+<!--                            <field name="customer_website"/>-->
+                            <field name="customer_name"/>
                             <field name="customer_phone"/>
-                            <field name="customer_mail"/>
-                            <field name="customer_website"/>
+<!--                            <field name="company_name"/>-->
+                            <field name="company_category"/>
                         </group>
                         <group>
                             <field name="project_type"/>
@@ -137,4 +142,10 @@
           action="add_leads_details"
           groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
 
+    <menuitem id="employee_mgmt_sub_undermenu"
+          name="Employees 02"
+          parent="client_management_menu"
+          sequence="45"
+          action="hr.open_view_employee_list_my"
+          />
 </odoo>

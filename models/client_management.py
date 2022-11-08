@@ -25,34 +25,34 @@ class ClientAssignment(models.Model):
     proposal = fields.Boolean(string="Add Proposal")
     job_management_ids = fields.One2many('job.management', 'client_id')
     lead_management_ids = fields.One2many('lead.management', 'customer_id')
+    project_count = fields.Integer(compute="check_projects")
 
-    # @api.onchange('name')
-    # def get_project(self):
-    #     # self.account_management_ids = self.env['account.management'].search([('client_management_id.id', '=', self.id)]).ids
-    #     self.account_management_ids = self.env['account.management'].search(
-    #         [('client_management_id.id', '=', self.id)]).ids
+    def project_creation(self):
+        return {
+            'res_model': 'project.management',
+            'type': 'ir.actions.act_window',
+            'context': {'default_client_id': self.id,
+                        'default_lead_id': self.id,
+                        },
+            'view_mode': 'form',
+            'view_id': self.env.ref("fxm_project_management.project_management_view").id,
+        }
 
-    # @api.onchange('name')
-    # def target_records(self):
-    #     print("oooooooooooooooooooo")
-    #     self.account_management_ids = self.env['account.management'].search([('client_management_id', '=', self.id)]).ids
-    #     print(self.account_management_ids)
-
-    # def action_services(self):
-    #     service_tree = {
-    #         'name': _('Service'),
-    #         'view_type': 'form',
-    #         'view_mode': 'tree,form',
-    #         'view_id': False,
-    #         'res_model': 'odx.service.manage',
-    #         'context': {'default_server_manage_id': self.id},
-    #         'type': 'ir.actions.act_window',
-    #         'target': 'current',
-    #         'domain': [('server_manage_id', '=', self.id)]
-    #     }
-    #     return service_tree
-
-
+    def check_projects(self):
+        self.project_count = self.env['project.management'].search_count([('client_id', '=', self.id)])
+        staging_tree = {
+            'name': _('Projects'),
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'view_id': False,
+            'res_model': 'project.management',
+            'type': 'ir.actions.act_window',
+            'context': {'default_client_id': self.id,
+                        },
+            'domain': [('client_id', '=', self.id)],
+            'target': 'current',
+        }
+        return staging_tree
 
 
 
