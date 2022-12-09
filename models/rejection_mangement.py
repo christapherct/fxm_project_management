@@ -21,11 +21,11 @@ class CRMRejection(models.TransientModel):
     _name = 'crm.rejection'
     _inherit = ['mail.thread']
 
-    task_management_id = fields.Many2one('task.management', string="Task Name", readonly=True)
-    assigned_user = fields.Many2one(related="task_management_id.partner_id", readonly=True)
-    project_management_id = fields.Many2one(related="task_management_id.project_management_id", readonly=True)
-    job_management_id = fields.Many2one(related="task_management_id.job_management_id", readonly=True)
-    reason = fields.Text(string="Reason", required=True)
+    task_management_id = fields.Many2one('task.management', string="Task Name", readonly=True, tracking=True)
+    assigned_user = fields.Many2one(related="task_management_id.partner_id", readonly=True, tracking=True)
+    project_management_id = fields.Many2one(related="task_management_id.project_management_id", readonly=True, tracking=True)
+    job_management_id = fields.Many2one(related="task_management_id.job_management_id", readonly=True, tracking=True)
+    reason = fields.Text(string="Reason", required=True, tracking=True)
 
     def rejection_reason(self):
         for rec in self.task_management_id:

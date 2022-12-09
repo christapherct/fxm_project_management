@@ -5,8 +5,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-<!--                <field name="customer_id"/>-->
-<!--                <field name="customer_phone"/>-->
+                <field name="customer_name"/>
                 <field name="project_type"/>
                 <field name="next_followup"/>
                 <field name="stage" string="Status" widget="badge" decoration-danger="stage == 'lost'" decoration-success="stage == 'project'"
@@ -58,7 +57,7 @@
                     <button name="action_lost_lead" string="Mark as Lost"
                             type="object" class="btn-secondary"
                             groups="fxm_project_management.group_server_admin"
-                            attrs="{'invisible':[('stage', '=','lost')]}"
+                            attrs="{'invisible':['|',('stage', '=','lost'),('stage', '=', 'client')]}"
                             confirm="Do you want to lost your lead?"
                     />
                     <button name="restore_lead" string="Restore"
@@ -71,10 +70,16 @@
                 </header>
                 <sheet>
                     <div name="button_box" class="oe_button_box">
-                        <button class="oe_stat_button" type="object" name="action_view_client"
+                        <button class="oe_stat_button" type="object" name="action_view_customer"
                                 icon="fa-edit" create="false" edit="false" string="Client"
-                                attrs="{'invisible': ['|', ('stage', '!=', 'client'), ('stage', '=', 'new')]}">
+                                attrs="{'invisible': ['|', ('stage', '!=', 'client'), ('stage', '=', 'new')]}"
+                                context="{'form_view_ref':'fxm_project_management.client_management_view'}">
                         </button>
+<!--                        <button name="action_view_customer" class="oe_stat_button" type="object"-->
+<!--                                icon="fa-edit" create="false" edit="false" string="Customer"-->
+<!--                                attrs="{'invisible': ['|', ('stage', '!=', 'client'), ('stage', '=', 'new')]}">-->
+
+<!--                        </button>-->
                     </div>
                     <widget name="web_ribbon" title="Lost" bg_color="bg-danger" attrs="{'invisible': [('stage', '!=', 'lost')]}"/>
                     <div class="oe_title">
@@ -90,14 +95,8 @@
                     </div>
                     <group>
                         <group>
-<!--                            <field name="customer_id"/>-->
-<!--                            <field name="customer_address"/>-->
-<!--                            <field name="customer_phone"/>-->
-<!--                            <field name="customer_mail"/>-->
-<!--                            <field name="customer_website"/>-->
                             <field name="customer_name"/>
                             <field name="customer_phone"/>
-<!--                            <field name="company_name"/>-->
                             <field name="company_category"/>
                         </group>
                         <group>
@@ -126,10 +125,54 @@
         </field>
     </record>
 
+    <record id="view_leads_mgmt_filter" model="ir.ui.view">
+        <field name="name">lead.mgmnt.filter</field>
+        <field name="model">lead.management</field>
+        <field name="arch" type="xml">
+            <search string="Search Leads">
+                <field name="customer_name"/>
+                <field name="name"/>
+                <field name="customer_phone"/>
+                <separator />
+                <filter string="Customer"
+                        name="customer_name"
+                        />
+                <filter string="Today"
+                        name="next_followup"
+                        domain="[('next_followup', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                  ('next_followup','&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="Lead"
+                        name="name"
+                        />
+                <filter string="Customer Phone"
+                        name="customer_phone"
+                        />
+                <filter string="Status - New"
+                        name="stage"
+                        domain="[('stage', '=', 'new')]"
+                        />
+                <filter string="Status - Hold"
+                        name="stage"
+                        domain="[('stage', '=', 'hold')]"
+                        />
+                <filter string="Status - Converted to Client"
+                        name="stage"
+                        domain="[('stage', '=', 'client')]"
+                        />
+                <filter string="Status - Lost"
+                        name="stage"
+                        domain="[('stage', '=', 'lost')]"
+                        />
+            </search>
+        </field>
+    </record>
+
+
     <record id="add_leads_details" model="ir.actions.act_window">
         <field name="name">Leads</field>
         <field name="res_model">lead.management</field>
         <field name="view_mode">tree,calendar,graph,form</field>
+        <field name="context">{"search_default_next_followup":1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No Leads found. Let's create one!</p>
         </field>

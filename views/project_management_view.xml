@@ -88,15 +88,17 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="job_creation" string="Create Jobs"
+                        type="object" class="btn btn-primary" attrs="{'invisible': ['|', ('stage', '!=', 'in_progress'), ('monthly_proposal','=',True)]}"/>
                     <button name="action_complete_project" string="Completed"
-                            type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'new')]}"/>
+                            type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'in_progress')]}"/>
                     <button name="action_check_invoice" string="Create Invoice"
+                            type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'done')]}"/>
+                    <button name="action_check_ins_invoice" string="Create Ins Invoice"
                             type="object" class="btn btn-primary" attrs="{'invisible': [('stage', '!=', 'done')]}"/>
                     <field name="stage" widget="statusbar"/>
                 </header>
                 <sheet>
-                    <button name="job_creation" string="Create Jobs"
-                        type="object" class="btn btn-primary" attrs="{'invisible': ['|',('stage', '!=', 'new'), ('monthly_proposal','=',True)]}"/>
                     <div name="button_box" class="oe_button_box">
                         <button class="oe_stat_button" type="object" name="pending_jobs"
                                 icon="fa-spinner">
@@ -122,19 +124,19 @@
                     </group>
                     <group string="Project Details">
                         <group>
-                            <field name="name"/>
-                            <field name="client_id"/>
-                            <field name="project_type"/>
+                            <field name="name" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
+                            <field name="client_id" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
+                            <field name="project_type" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
                         </group>
                         <group>
-                            <field name="start_date"/>
-                            <field name="end_date"/>
-                            <field name="description"/>
-                            <field name="monthly_proposal" invisible="1"/>
+                            <field name="start_date" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
+                            <field name="end_date" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
+                            <field name="description" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
+                            <field name="monthly_proposal" invisible="1" attrs="{'readonly': [('stage', '=', 'invoiced')]}"/>
                         </group>
                     </group>
                     <notebook>
-                        <page name="Jobs" attrs="{'invisible': [('project_type', '!=', 'monthly')]}">
+                        <page name="Jobs" attrs="{'invisible': [('project_type', '!=', 'monthly')]}" >
                             <field name="job_ids" context="{'default_job_category':'digital_work'}" readonly="1">
                                 <tree>
                                     <field name="job_name"/>
@@ -169,6 +171,12 @@
               parent="client_management_menu"
               sequence="10"
               action="project_management_details"
+              groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
+    <menuitem id="invoice_inherit_submenu"
+              name="Invoices 02"
+              parent="client_management_menu"
+              sequence="55"
+              action="account.action_move_out_invoice_type"
               groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
 
 </odoo>

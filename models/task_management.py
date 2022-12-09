@@ -10,26 +10,26 @@ class TaskAssignment(models.Model):
     _inherit = ['mail.thread']
     _description = "Tasks"
 
-    tl_rejection_ids = fields.One2many('tl.rejection', 'task_management_id')
-    crm_rejection_ids = fields.One2many('crm.rejection', 'task_management_id')
-    client_rejection_ids = fields.One2many('client.rejection', 'task_management_id')
+    tl_rejection_ids = fields.One2many('tl.rejection', 'task_management_id', tracking=True)
+    crm_rejection_ids = fields.One2many('crm.rejection', 'task_management_id', tracking=True)
+    client_rejection_ids = fields.One2many('client.rejection', 'task_management_id', tracking=True)
 
-    task_event_ids = fields.One2many('task.event', 'task_management_id')
-    job_management_id = fields.Many2one('job.management', string="Job", required=True)
-    account_management_id = fields.Many2one('account.management')
-    timesheet_management_ids = fields.One2many('timesheet.management', 'task_management_id')
-    name = fields.Char(string="Name", required=True)
-    project_management_id = fields.Many2one(related="job_management_id.project_management_id", string="Project", required=True)
-    user_id = fields.Many2one('designer.management')
-    partner_id = fields.Many2one('designer.management', string="Assigned to")
-    employee_id = fields.Many2one('hr.employee', string="Assigned to")
-    assigned_date = fields.Datetime(string="Assigned Date", readonly=True)
-    updated_date = fields.Datetime(string="Last Updated Date", readonly=True)
-    submitted_date = fields.Datetime(string="Submitted Date", readonly=True)
-    deadline = fields.Date(string="Deadline")
-    client_id = fields.Many2one(related="job_management_id.client_management_id", readonly=False, string="Client", track_visibility=True, required=True)
-    checklist = fields.Text(related="job_management_id.checklist", readonly=False, string="Checklist", track_visibility=True)
-    description = fields.Text(string="Description")
+    task_event_ids = fields.One2many('task.event', 'task_management_id', tracking=True)
+    job_management_id = fields.Many2one('job.management', string="Job", required=True, tracking=True)
+    account_management_id = fields.Many2one('account.management', tracking=True)
+    timesheet_management_ids = fields.One2many('timesheet.management', 'task_management_id', tracking=True)
+    name = fields.Char(string="Name", required=True, tracking=True)
+    project_management_id = fields.Many2one(related="job_management_id.project_management_id", string="Project", required=True, store=True, tracking=True)
+    user_id = fields.Many2one('designer.management', tracking=True)
+    partner_id = fields.Many2one('designer.management', string="Assigned to", tracking=True)
+    employee_id = fields.Many2one('hr.employee', string="Assigned to", tracking=True)
+    assigned_date = fields.Datetime(string="Assigned Date", readonly=True, tracking=True)
+    updated_date = fields.Datetime(string="Last Updated Date", readonly=True, tracking=True)
+    submitted_date = fields.Datetime(string="Submitted Date", readonly=True, tracking=True)
+    deadline = fields.Date(string="Deadline", tracking=True)
+    client_id = fields.Many2one(related="job_management_id.client_management_id", readonly=False, string="Client", tracking=True, required=True, store=True)
+    checklist = fields.Text(related="job_management_id.checklist", readonly=False, string="Checklist", tracking=True)
+    description = fields.Text(string="Description", tracking=True)
     kanban_state = fields.Selection([('normal', 'In Progress'), ('blocked', 'Blocked'), ('done', 'Ready for next stage')],
                                     string='Kanban State', required=True, default='normal', tracking=True)
     stage_id = fields.Selection([('new', 'New'), ('assigned', 'Assigned'), ('submission', 'Submission'), ('tl_approval', 'TL Approval'),
@@ -43,10 +43,10 @@ class TaskAssignment(models.Model):
                                 string="Priority", tracking=True)
     task_priority = fields.Selection([('expired', 'Expired'), ('today', 'Today'), ('tomorrow', 'Tomorrow'), ('week', 'In this Week'), ('x_later', 'Later')],
                                      string='Task Priority', tracking=True)
-    d4 = fields.Date(default=fields.Date.today, readonly=True)
+    d4 = fields.Date(default=fields.Date.today, readonly=True, tracking=True)
     tl_reason = fields.Text(string="Reason for Rejection By Team Leader", tracking=True)
     crm_reason = fields.Text(string="Reason for Rejection By CRM", tracking=True)
-    client_reason = fields.Text(string="Reason for Rejection By Client")
+    client_reason = fields.Text(string="Reason for Rejection By Client", tracking=True)
 
     @api.onchange('partner_id')
     def change_date_field(self):
@@ -129,11 +129,11 @@ class TaskAssignment(models.Model):
     def completed_jobs(self):
         self.stage_id = 'completed'
 
-    def write(self, vals):
-        if any(stage_id == 'completed' for stage_id in set(self.mapped('stage_id'))):
-            raise UserError(_("No edits in Completed task"))
-        else:
-            return super().write(vals)
+    # def write(self, vals):
+    #     if any(stage_id == 'completed' for stage_id in set(self.mapped('stage_id'))):
+    #         raise UserError(_("No edits in Completed task"))
+    #     else:
+    #         return super().write(vals)
 
     @api.onchange('total_days')
     def date_difference(self):
@@ -149,6 +149,8 @@ class TaskAssignment(models.Model):
             else:
                 self.task_priority = 'expired'
                 abs(self.total_days)
+
+
 
 
 

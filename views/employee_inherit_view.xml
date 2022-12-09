@@ -7,12 +7,28 @@
             <xpath expr="//sheet/div/h2/field[@name='job_title']" position="replace">
                 <field name="job_id"/>
             </xpath>
-            <xpath expr="//sheet/div[@name='button_box']" position="replace">
+            <xpath expr="//header/button[@name='536']" position="after">
                 <button name="action_check_timesheet" type="object"
                     class="oe_stat_button" icon="fa-star" string="Timesheet"/>
             </xpath>
             <xpath expr="//sheet/group/group/field[@name='department_id']" position="after">
                 <field name="designation"/>
+            </xpath>
+            <xpath expr="//sheet/notebook/page[@name='public']" position="before">
+                <page string="Timesheet">
+                    <field name="timesheet_management_ids" readonly="1">
+                        <tree >
+                            <field name="project_management_id" readonly="1"/>
+                            <field name="user_id"/>
+                            <button name="current_start_time" type="object" string="Start" class="btn-success" style="width: 50px"/>
+                            <field name="date_from"/>
+                            <button name="current_end_time" type="object" string="Stop" class="btn-danger" style="width: 50px;" />
+                            <field name="date_to"/>
+                            <field name="time_spent" widget="float_time"/>
+                            <field name="notes"/>
+                        </tree>
+                    </field>
+                </page>
             </xpath>
             <field name="category_ids" position="attributes">
                 <attribute name="invisible">1</attribute>

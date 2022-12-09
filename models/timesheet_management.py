@@ -9,38 +9,24 @@ class TimesheeetAssignment(models.Model):
     _inherit = ['mail.thread']
     _description = "Tasks"
 
-    task_management_id = fields.Many2one('task.management')
-    designer_management_id = fields.Many2one('designer.management')
-    employee_management_id = fields.Many2one('hr.employee')
-    name = fields.Char(string="Name", track_visibility=True)
-    user_id = fields.Many2one(related="task_management_id.partner_id", readonly=False, track_visibility=True)
-    project_management_id = fields.Many2one(related="task_management_id.project_management_id", track_visibility=True, required=True)
-    date_from = fields.Datetime(string="Date From", track_visibility=True, readonly=True)
-    date_to = fields.Datetime(string="Date To", track_visibility=True, readonly=True)
-    notes = fields.Text(string="Notes", track_visibility=True)
-    time_spent = fields.Char(string="Time spent(Hrs)", track_visibility=True, compute="date_difference", store=True)
+    task_management_id = fields.Many2one('task.management', tracking=True)
+    designer_management_id = fields.Many2one('designer.management', tracking=True)
+    employee_management_id = fields.Many2one('hr.employee', tracking=True)
+    name = fields.Char(string="Name", tracking=True)
+    user_id = fields.Many2one(related="task_management_id.employee_id", readonly=False, tracking=True)
+    project_management_id = fields.Many2one(related="task_management_id.project_management_id", tracking=True, required=True)
+    date_from = fields.Datetime(string="Date From", tracking=True, readonly=True)
+    date_to = fields.Datetime(string="Date To", tracking=True, readonly=True)
+    notes = fields.Text(string="Notes", tracking=True)
+    time_spent = fields.Char(string="Time spent(Hrs)", tracking=True, compute="date_difference", store=True)
 
     def current_start_time(self):
         self.date_from = fields.Datetime.now()
+        return
 
     def current_end_time(self):
         self.date_to = fields.Datetime.now()
-
-    # @api.onchange('date_to', 'date_from')
-    # def date_difference(self):
-    #     if self.date_to and self.date_from:
-    #         # d1 = datetime.strptime(str(self.date_from), '%Y-%m-%d %H:%M:%S')
-    #         d1 = datetime.strptime(self.date_from, '%Y-%m-%d %H:%M:%S')
-    #         # d2 = datetime.strptime(str(self.date_to), '%Y-%m-%d %H:%M:%S')
-    #         d2 = datetime.strptime(self.date_from, '%Y-%m-%d %H:%M:%S')
-    #         # d4 = datetime.today()
-    #         # d3 = (self.date_to - self.date_from)
-    #         d3 = (d2 - d1)
-    #         d4 = (d3.seconds / 3600)
-    #         print("seconds", d4)
-    #         d5 = (d3.days * 24)
-    #         # print("days", d5)
-    #         self.time_spent = d4 + d5
+        return
 
     @api.depends('date_from', 'date_to')
     def date_difference(self):

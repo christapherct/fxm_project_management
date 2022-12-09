@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <xpath expr="//sheet/group/group/field[@name='partner_id']" position="after">
                 <field name="partner_id" invisible="1"/>
-                <field name="project_management_id" domain="['|',('stage', '=', 'done'), ('stage', '!=', 'invoiced')]" options="{'no_create': True, 'no_create_edit':True}"/>
+                <field name="project_management_id" domain="['|',('stage', '=', 'done'), ('stage', '!=', 'invoiced')]" options="{'no_create': True, 'no_create_edit':True}" attrs="{'readonly': [('state', '=', 'done')]}"/>
             </xpath>
             <label for="partner_id" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -16,6 +16,9 @@
             </field>
             <xpath expr="//sheet/group/group/field[@name='project_management_id']" position="after">
                 <field name="client_management_id"/>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="replace">
+                <field name="state" widget="statusbar" statusbar_visible="draft,processing,posted"/>
             </xpath>
             <xpath expr="//sheet/group/group/field[@name='client_management_id']" position="after">
                 <field name="project_type"/>
@@ -29,14 +32,18 @@
             <xpath expr="//sheet/group/group/field[@name='start_date']" position="after">
                 <field name="end_date"/>
             </xpath>
-<!--            <xpath expr="//header/button[@name='action_post']" position="replace">-->
-<!--                <button name="action_invoice_sent" string="Confirm" class="oe_highlight" type="object" />-->
-<!--            </xpath>-->
+            <xpath expr="//header" position="inside">
+                <button name="confirm_action_post" string="Confirm02" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state', '=', 'posted')]}"/>
+            </xpath>
+            <xpath expr="//header/button[@name='action_post']" position="replace">
+                <button name="action_post" string="Confirm_01" class="oe_highlight" type="object" />
+            </xpath>
 
             <xpath expr="//sheet/notebook/page[@id='invoice_tab']" position="replace">
                 <page string="Jobs">
-                    <field name="job_management_ids" options="{'no_create': True}">
-                        <tree editable="bottom">
+                    <field name="job_management_ids">
+                        <tree editable="bottom" create="0" delete="0">
                             <field name="name" readonly="1"/>
                             <field name="project_management_id" readonly="1"/>
                             <field name="client_management_id" readonly="1"/>
@@ -53,17 +60,20 @@
                     </group>
                     <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
                         <field name="amount_untaxed" string="Total Price" widget='monetary'
-                               options="{'currency_field': 'currency_id'}"/>
+                               options="{'currency_field': 'currency_id'}" force_save="1"/>
                         <field name="amount_tax" string="Total Tax" widget='monetary'
-                               options="{'currency_field': 'currency_id'}"/>
+                               options="{'currency_field': 'currency_id'}" force_save="1"/>
                         <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                             <label for="amount_total"/>
                         </div>
                         <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary'
-                               options="{'currency_field': 'currency_id'}"/>
+                               options="{'currency_field': 'currency_id'}" force_save="1"/>
                     </group>
                     <div class="oe_clear"/>
                 </group>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="attributes">
+                <attribute name="force_save">True</attribute>
             </xpath>
 
 
@@ -74,4 +84,23 @@
 <!--            </field>-->
         </field>
     </record>
+
+    <record id="view_move_tree_inherit" model="ir.ui.view">
+        <field name="name">account.move.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='invoice_partner_display_name']" position="replace">
+                <field name="client_management_id"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_untaxed_signed']" position="replace">
+                <field name="amount_untaxed"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_total_signed']" position="replace">
+                <field name="amount_total"/>
+            </xpath>
+        </field>
+    </record>
+
+
 </odoo>

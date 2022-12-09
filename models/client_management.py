@@ -1,4 +1,4 @@
-from odoo import api, fields, models, _
+from odoo import api, fields, models, _, exceptions
 
 
 class ClientAssignment(models.Model):
@@ -6,26 +6,27 @@ class ClientAssignment(models.Model):
     _inherit = ['mail.thread']
     _description = "Clients"
 
-    name = fields.Char(string="Name", track_visibility=True, required=True)
-    email = fields.Char(string="Email", track_visibility=True)
+    name = fields.Char(string="Name", tracking=True, required=True)
+    email = fields.Char(string="Email", tracking=True)
     category = fields.Selection(selection=[('premium', 'Premium'), ('normal', 'Normal')],
-                                string="Category", track_visibility=True)
-    address = fields.Text(string="Customer Address", track_visibility=True)
-    checklist = fields.Text(string="Checklist", track_visibility=True)
-    contact = fields.Char(string="Contact no", track_visibility=True)
-    office_num = fields.Char(string="Office no", track_visibility=True)
-    website = fields.Char(string="Website", track_visibility=True)
-    facebook_url = fields.Char(string="Facebook URL", track_visibility=True)
-    instagram_url = fields.Char(string="Instagram URL", track_visibility=True)
+                                string="Category", tracking=True)
+    address = fields.Text(string="Customer Address", tracking=True)
+    checklist = fields.Text(string="Checklist", tracking=True)
+    contact = fields.Char(string="Contact no", tracking=True)
+    office_num = fields.Char(string="Office no", tracking=True)
+    website = fields.Char(string="Website", tracking=True)
+    facebook_url = fields.Char(string="Facebook URL", tracking=True)
+    instagram_url = fields.Char(string="Instagram URL", tracking=True)
     social_media = fields.Selection(selection=[('instagram', 'Instagram'), ('facebook', 'Facebook')],
-                                    string="Social Media", track_visibility=True)
+                                    string="Social Media", tracking=True)
     state = fields.Selection([('pending', 'Pending'), ('assign', 'Assigned'), ('done', 'Completed'),
-                              ('cancel', 'Cancelled')], string="Status", readonly=True, default="pending", track_visibility=True)
-    account_management_ids = fields.One2many('account.management', 'client_management_id')
-    proposal = fields.Boolean(string="Add Proposal")
-    job_management_ids = fields.One2many('job.management', 'client_id')
-    lead_management_ids = fields.One2many('lead.management', 'customer_id')
-    project_count = fields.Integer(compute="check_projects")
+                              ('cancel', 'Cancelled')], string="Status", readonly=True, default="pending", tracking=True)
+    account_management_ids = fields.One2many('account.management', 'client_management_id', tracking=True)
+    proposal = fields.Boolean(string="Add Proposal", tracking=True)
+    job_management_ids = fields.One2many('job.management', 'client_id', tracking=True)
+    # lead_management_ids = fields.One2many('lead.management', 'customer_id', tracking=True)
+    lead_mgmt_id = fields.Many2one('lead.management')
+    project_count = fields.Integer(compute="check_projects", tracking=True)
 
     def project_creation(self):
         return {
@@ -54,5 +55,11 @@ class ClientAssignment(models.Model):
         }
         return staging_tree
 
+    # @api.model
+    # def create(self, vals):
+    #     if self.env['lead.management'].search([('customer_id', '!=', self.id)]):
+    #         raise exceptions.Warning(_('Customer Exist for this particular lead'))
+    #     else:
+    #         return super(ClientAssignment, self).create(vals)
 
 

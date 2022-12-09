@@ -11,41 +11,39 @@ class ProjectAssignment(models.Model):
     _inherit = ['mail.thread']
     _description = "Project"
 
-    account_management_id = fields.One2many('account.management', 'project_management_id')
-    account_inherit_id = fields.One2many('account.move', 'project_management_id')
-    job_management_ids = fields.One2many('job.management', 'project_management_id')
-    task_management_ids = fields.One2many('task.management', 'project_management_id')
-    name = fields.Char(string="Project Name", track_visibility=True, required=True)
-    client_id = fields.Many2one('client.management', string="Client Name", track_visibility=True, required=True)
-    checklist = fields.Text(related="client_id.checklist", readonly=False, string="Checklist", track_visibility=True)
-    proposal = fields.Boolean(related="client_id.proposal", readonly=False, string="Add Proposal", track_visibility=True)
-    job_ids = fields.One2many(related="client_id.job_management_ids", readonly=False, string="Jobs", track_visibility=True)
+    account_management_id = fields.One2many('account.management', 'project_management_id', tracking=True)
+    account_inherit_ids = fields.One2many('account.move', 'project_management_id', tracking=True)
+    job_management_ids = fields.One2many('job.management', 'project_management_id', tracking=True)
+    task_management_ids = fields.One2many('task.management', 'project_management_id', tracking=True)
+    name = fields.Char(string="Project Name", tracking=True, required=True)
+    client_id = fields.Many2one('client.management', string="Client Name", tracking=True, required=True)
+    checklist = fields.Text(related="client_id.checklist", readonly=False, string="Checklist", tracking=True)
+    proposal = fields.Boolean(related="client_id.proposal", readonly=False, string="Add Proposal", tracking=True)
+    job_ids = fields.One2many(related="client_id.job_management_ids", readonly=False, string="Jobs", tracking=True)
     project_type = fields.Selection(selection=[('one_time', 'One Time'), ('monthly', 'Monthly'), ('emergency', 'Emergency')],
-                                    string="Project Type", track_visibility=True)
-    start_date = fields.Date(default=fields.Date.today, readonly=False, string="Start Date", track_visibility=True)
-    end_date = fields.Date(string="End Date", track_visibility=True)
+                                    string="Project Type", tracking=True)
+    start_date = fields.Date(default=fields.Date.today, readonly=False, string="Start Date", tracking=True)
+    end_date = fields.Date(string="End Date", tracking=True)
     project_category = fields.Selection(
         selection=[('standard', 'Standard'), ('creative', 'Creative')], string="Project Category", track_visibility=True)
-    description = fields.Text(string="Description", track_visibility=True)
+    description = fields.Text(string="Description", tracking=True)
 
     stage_id = fields.Selection([('new', 'New'), ('assigned', 'Assigned'), ('submission', 'Submission'), ('completed', 'Completed')],
                                 string="Stage", default='new', tracking=True)
     note = fields.Text(string="Notes")
     state = fields.Selection(related="account_management_id.state", tracking=True)
     show_jobs = fields.Boolean(string="Show All Jobs", tracking=True, default=True)
-    monthly_proposal = fields.Boolean(string="Monthly Proposal", compute="check_monthly_proposal")
+    monthly_proposal = fields.Boolean(string="Monthly Proposal", compute="check_monthly_proposal", tracking=True)
     # lead_id = fields.Many2one('lead.management')
-    pending_job_count = fields.Integer(compute="get_pending_job_count")
-    completed_job_count = fields.Integer(compute="get_completed_job_count")
-    stage = fields.Selection(
-        selection=[('new', 'New'), ('in_progress', 'In Progress'), ('done', 'Done'), ('invoiced', 'Invoiced'), ('cancel', 'Cancelled')], track_visibility=True,
-        default='new')
+    pending_job_count = fields.Integer(compute="get_pending_job_count", tracking=True)
+    completed_job_count = fields.Integer(compute="get_completed_job_count", tracking=True)
+    stage = fields.Selection(selection=[('new', 'New'), ('in_progress', 'In Progress'), ('done', 'Done'), ('invoiced', 'Invoiced'),
+                                        ('cancel', 'Cancelled')], tracking=True, default='new')
 
-    def write(self, vals):
-        if any(stage == 'invoiced' for stage in set(self.mapped('stage'))):
-            raise UserError(_("No edits in Completed jobs"))
-        else:
-            return super().write(vals)
+    @api.model
+    def create(self, vals):
+        vals['stage'] = 'in_progress'
+        return super(ProjectAssignment, self).create(vals)
 
     def set_kanban_color(self):
         for record in self:
@@ -87,7 +85,6 @@ class ProjectAssignment(models.Model):
             self.stage = 'done'
 
     def action_check_invoice(self):
-        self.stage = 'invoiced'
         return {
             'res_model': 'account.management',
             'type': 'ir.actions.act_window',
@@ -95,6 +92,16 @@ class ProjectAssignment(models.Model):
                         },
             'view_mode': 'form',
             'view_id': self.env.ref("fxm_project_management.account_task_view").id,
+        }
+
+    def action_check_ins_invoice(self):
+        return {
+            'res_model': 'account.move',
+            'type': 'ir.actions.act_window',
+            'context': {'default_project_management_id': self.id,
+                        },
+            'view_mode': 'form',
+            'view_id': self.env.ref("account.view_move_form").id,
         }
 
     def completed_jobs(self):

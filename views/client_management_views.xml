@@ -11,7 +11,7 @@
         </field>
     </record>
 
-    <record id="client_management_view" model="ir.ui.view">
+    <record id="client_form_view" model="ir.ui.view">
         <field name="name">client_management_view</field>
         <field name="model">client.management</field>
         <field name="arch" type="xml">
@@ -77,7 +77,24 @@
         </field>
     </record>
 
-    <record id="add_client_details" model="ir.actions.act_window">
+    <record id="view_client_mgmt_filter" model="ir.ui.view">
+        <field name="name">client.mgmnt.filter</field>
+        <field name="model">client.management</field>
+        <field name="arch" type="xml">
+            <search string="Search Leads">
+                <field name="name"/>
+                <field name="contact"/>
+                <separator />
+                <filter string="Premium Customers"
+                        name="category"
+                        domain="[('category', '=', 'premium')]"
+                        />
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_client_mgmt" model="ir.actions.act_window">
         <field name="name">Clients</field>
         <field name="res_model">client.management</field>
         <field name="view_mode">tree,form</field>
@@ -94,6 +111,6 @@
               name="Clients"
               parent="client_management_menu"
               sequence="08"
-              action="add_client_details"
+              action="action_client_mgmt"
               groups="fxm_project_management.group_server_admin,fxm_project_management.group_server_accounts,fxm_project_management.group_server_designer"/>
 </odoo>

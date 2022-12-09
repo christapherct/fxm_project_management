@@ -11,9 +11,7 @@ access_task_management_admin,name.task.management.admin,model_task_management,fx
 access_task_management,name.task.management,model_task_management,fxm_project_management.group_server_designer,1,1,0,0
 access_task_management_accounts,name.task.management.accounts,model_task_management,fxm_project_management.group_server_accounts,1,0,0,0
 
-access_designer_management_admin,name.designer.management.admin,model_designer_management,fxm_project_management.group_server_admin,1,1,1,1
-access_designer_management_designer,name.designer.management.designer,model_designer_management,fxm_project_management.group_server_designer,1,0,0,0
-access_designer_management_accounts,name.designer.management.accounts,model_designer_management,fxm_project_management.group_server_accounts,1,0,0,0
+
 
 access_timesheet_management_admin,name.timesheet.management.admin,model_timesheet_management,fxm_project_management.group_server_admin,1,1,1,1
 access_timesheet_designer,name.timesheet.designer,model_timesheet_management,fxm_project_management.group_server_designer,1,1,1,1,

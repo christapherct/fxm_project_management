@@ -1,7 +1,7 @@
 from . import client_management
 from . import project_management
 from . import task_management
-from . import designer_management
+# from . import designer_management
 from . import timesheet_management
 from . import account_management
 from . import job_management

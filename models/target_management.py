@@ -15,16 +15,16 @@ class TargetAssignment(models.Model):
     _inherit = ['mail.thread']
     _description = "Target"
 
-    name = fields.Char(string='Reference', readonly=True)
-    internal_note = fields.Text(string='Internal Note')
-    target_ids = fields.One2many('daily.target.line', 'target_id', string='Target')
-    target_amount = fields.Float(string='Total Target', readonly=False, required=True)
-    achieved_total = fields.Float(string='Total Achieved')
-    account_management_ids = fields.One2many('account.management', 'target_management_id')
-    date = fields.Date(string='Date', default=lambda self: fields.Date.today())
-    to_date = fields.Date(string='To Date', default=lambda self: fields.Date.today())
-    client_management_id = fields.Many2one('client.management', string="Client")
-    notes = fields.Text(string="Notes")
+    name = fields.Char(string='Reference', readonly=True, tracking=True)
+    internal_note = fields.Text(string='Internal Note', tracking=True)
+    target_ids = fields.One2many('daily.target.line', 'target_id', string='Target', tracking=True)
+    target_amount = fields.Float(string='Total Target', readonly=False, required=True, tracking=True)
+    achieved_total = fields.Float(string='Total Achieved', tracking=True)
+    account_management_ids = fields.One2many('account.management', 'target_management_id', tracking=True)
+    date = fields.Date(string='Date', default=lambda self: fields.Date.today(), tracking=True)
+    to_date = fields.Date(string='To Date', default=lambda self: fields.Date.today(), tracking=True)
+    client_management_id = fields.Many2one('client.management', string="Client", tracking=True)
+    notes = fields.Text(string="Notes", tracking=True)
 
     @api.onchange('date', 'to_date', 'client_management_id')
     def target_records(self):

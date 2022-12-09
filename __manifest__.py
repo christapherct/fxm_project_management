@@ -24,7 +24,7 @@
          'views/project_management_view.xml',
          'views/task_management_views.xml',
          'views/task_event_view.xml',
-         'views/designer_management_view.xml',
+         # 'views/designer_management_view.xml',
          'views/account_management_view.xml',
          'views/job_management_view.xml',
          'views/job_type_view.xml',

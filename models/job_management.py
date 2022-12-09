@@ -12,22 +12,22 @@ class JobManagement(models.Model):
     _description = "Job Management"
     _rec_name = 'job_name'
 
-    task_management_ids = fields.One2many('task.management', 'job_management_id')
-    client_id = fields.Many2one('client.management')
-    project_management_id = fields.Many2one('project.management', string="Project", track_visibility=True)
-    client_management_id = fields.Many2one(related="project_management_id.client_id", readonly=False, string="Client", track_visibility=True, required=True)
-    checklist = fields.Text(related="project_management_id.checklist", readonly=False, string="Checklist", track_visibility=True)
-    job_target_id = fields.Many2one('job.target')
-    name = fields.Char(readonly=True, copy=False, track_visibility=True, default='New')
-    job_name = fields.Char(string="Job Name", required=True)
+    task_management_ids = fields.One2many('task.management', 'job_management_id', tracking=True)
+    client_id = fields.Many2one('client.management', tracking=True)
+    project_management_id = fields.Many2one('project.management', string="Project", tracking=True)
+    client_management_id = fields.Many2one(related="project_management_id.client_id", readonly=False, string="Client", tracking=True, required=True)
+    checklist = fields.Text(related="project_management_id.checklist", readonly=False, string="Checklist", tracking=True)
+    job_target_id = fields.Many2one('job.target', tracking=True)
+    name = fields.Char(readonly=True, copy=False, tracking=True, default='New')
+    job_name = fields.Char(string="Job Name", required=True, tracking=True)
     job_type = fields.Selection(selection=[('new', 'New'), ('edit', 'Edit')],
-                            string="Job Type", track_visibility=True)
-    social_medias = fields.Boolean(string="Social Media", track_visibility=True)
-    created_date = fields.Date(related="project_management_id.start_date", string="Created Date", readonly=False)
-    amount_untaxed = fields.Float(string="Price", track_visibility=True)
-    price_subtotal = fields.Float(string="Total Price", track_visibility=True)
-    price_tax = fields.Float(string="Tax(%)")
-    sum = fields.Char(default='sum', track_visibility=True)
+                            string="Job Type", tracking=True)
+    social_medias = fields.Boolean(string="Social Media", tracking=True)
+    created_date = fields.Date(related="project_management_id.start_date", string="Created Date", readonly=False, tracking=True)
+    amount_untaxed = fields.Float(string="Price", tracking=True)
+    price_subtotal = fields.Float(string="Total Price", tracking=True)
+    price_tax = fields.Float(string="Tax(%)", tracking=True)
+    sum = fields.Char(default='sum', tracking=True)
     stage = fields.Selection([('new', 'New'), ('processing', 'Processing'), ('hold', 'Hold'),('completed', 'Completed')],
                             string="Stage", default='new', tracking=True)
     job_category = fields.Selection([('print', 'Print'), ('digital_work', 'Digital Work'), ('branding', 'Branding')],
@@ -44,22 +44,20 @@ class JobManagement(models.Model):
                             string="Job Sub Category", tracking=True, store=True)
     branding_category = fields.Selection([('logo_basic', 'Logo- Basic Package'), ('logo_advanced','Logo- Advanced Package'), ('brand_naming_tagline', 'Brand- Naming & Tagline')],
                             string="Job Sub Category", tracking=True, store=True)
-    pending_task_count = fields.Integer(compute="get_pending_job")
-    # completed_task_count = fields.Integer(compute="get_completed_job")
+    pending_task_count = fields.Integer(compute="get_pending_job", tracking=True)
 
     @api.model
     def create(self, vals):
-        print("hii")
         record = self.env['job.management'].create({
             'stage': 'processing'
         })
         return record
 
-    def write(self, vals):
-        if any(stage == 'completed' for stage in set(self.mapped('stage'))):
-            raise UserError(_("No edits in Completed jobs"))
-        else:
-            return super().write(vals)
+    # def write(self, vals):
+    #     if any(stage == 'completed' for stage in set(self.mapped('stage'))):
+    #         raise UserError(_("'No edits' in Completed jobs"))
+    #     else:
+    #         return super().write(vals)
 
     def name_get(self):
         result = []
